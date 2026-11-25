@@ -1,0 +1,49 @@
+# Speed-Tac 3D Interactive Lab — Hostinger LiteSpeed .htaccess
+# Safe for Apache 2.4 / LiteSpeed Enterprise (PHP 8.3.37 LSAPI — no php_flag!)
+
+DirectoryIndex index.html
+Options -Indexes
+
+# 1. Strict MIME Types & UTF-8 (required for ES Modules, Import Maps & glTF Binary)
+<IfModule mod_mime.c>
+  AddType text/html .html .htm
+  AddType text/css .css
+  AddType application/javascript .js .mjs
+  AddType application/json .json
+  AddType model/gltf-binary .glb
+  AddType model/gltf+json .gltf
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+  AddType image/svg+xml .svg
+  AddCharset UTF-8 .html .htm .css .js .mjs .json .gltf
+</IfModule>
+
+# 2. Gzip Compression (reduces vendor/three.module.js 1.27 MB -> ~310 KB over wire)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json model/gltf+json model/gltf-binary image/svg+xml
+</IfModule>
+
+# 3. Cache-Control (unhashed filenames: revalidate HTML immediately; 24h revalidate on assets)
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Same-origin iframe embedding on speed-tac.com + HTTPS upgrade
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Content-Security-Policy "frame-ancestors 'self' https://speed-tac.com https://www.speed-tac.com; upgrade-insecure-requests;"
+
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  <FilesMatch "\.(js|mjs|glb|gltf|json|css|png|jpg|jpeg|svg)$">
+    Header set Cache-Control "public, max-age=86400, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# 4. Block accidental PHP execution inside static bundle directory (LiteSpeed-safe)
+<FilesMatch "\.(?i:php|phtml|phar)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>

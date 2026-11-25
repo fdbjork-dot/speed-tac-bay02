@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Speed-Tac Bay 02 — Interactive 3D World &amp; The Brain (Paulden, AZ 86334)</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js"
+    }
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #05080f;
+      --panel: rgba(9, 14, 24, 0.88);
+      --panel-solid: #0b111d;
+      --panel-2: rgba(17, 25, 40, 0.92);
+      --border: rgba(255, 255, 255, 0.14);
+      --gold: #f4c45a;
+      --cyan: #38d6f5;
+      --mint: #4ade80;
+      --red: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      user-select: none; -webkit-user-select: none;
+    }
+    #viewport {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      cursor: grab;
+    }
+    #viewport:active { cursor: grabbing; }
+
+    /* Loading & Protocol Guard Overlay */
+    #boot-overlay {
+      position: fixed; inset: 0; z-index: 90;
+      background: radial-gradient(circle at 50% 35%, #131e32 0%, #05080f 75%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center; transition: opacity 0.45s ease;
+    }
+    #boot-overlay.fade-out { opacity: 0; pointer-events: none; }
+    .boot-eyebrow {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 10px;
+    }
+    .boot-title { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .boot-sub { color: var(--muted); font-size: 14px; max-width: 620px; line-height: 1.5; margin-bottom: 22px; }
+    .boot-bar-wrap {
+      width: min(380px, 85vw); height: 8px; border-radius: 999px;
+      background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    #boot-bar { width: 18%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--cyan)); transition: width 0.2s; }
+    #boot-status { font-family: var(--mono); font-size: 12px; color: var(--cyan); }
+    .file-protocol-box {
+      margin-top: 18px; padding: 14px 18px; border-radius: 12px;
+      background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.5);
+      max-width: 560px; font-size: 13px; line-height: 1.5; color: #fecaca;
+    }
+    .file-protocol-box code {
+      display: block; margin-top: 8px; padding: 8px 10px; border-radius: 6px;
+      background: #05080f; color: var(--gold); font-family: var(--mono); user-select: text;
+    }
+
+    /* Overhead 3D Speech Bubbles Layer */
+    #speech-layer {
+      position: fixed; inset: 0; pointer-events: none; z-index: 15; overflow: hidden;
+    }
+    .speech-bubble {
+      position: absolute; transform: translate(-50%, -100%);
+      max-width: 270px; padding: 7px 11px; border-radius: 10px;
+      background: rgba(8, 13, 23, 0.92);
+      border: 1.5px solid var(--gold);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.65);
+      font-size: 12px; line-height: 1.35; color: #f8fafc;
+      pointer-events: none; white-space: normal;
+    }
+    .speech-bubble .spk {
+      display: block; font-family: var(--mono); font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; color: var(--gold);
+    }
+
+    /* Top HUD Bar */
+    #hud-top {
+      position: fixed; top: 12px; left: 12px; right: 12px; z-index: 25;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      pointer-events: none;
+    }
+    .hud-cluster {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      pointer-events: auto;
+    }
+    .hud-pill {
+      background: var(--panel); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 7px 11px; font-size: 12px; display: flex; align-items: center; gap: 7px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+    .hud-pill .lbl { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .hud-pill .val { font-family: var(--mono); font-weight: 700; color: var(--text); }
+    .hud-pill .val.gold { color: var(--gold); }
+    .hud-pill .val.cyan { color: var(--cyan); }
+    .hud-pill .val.mint { color: var(--mint); }
+
+    .hud-btn {
+      background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.15s ease; box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+    .hud-btn:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .hud-btn.active { background: rgba(56, 214, 245, 0.18); border-color: var(--cyan); color: var(--cyan); }
+    .hud-btn.brain-cta {
+      background: linear-gradient(135deg, rgba(244, 196, 90, 0.24), rgba(56, 214, 245, 0.18));
+      border-color: var(--gold); color: var(--gold);
+      box-shadow: 0 0 22px rgba(244, 196, 90, 0.25);
+    }
+    .hud-btn.shave-cta {
+      background: rgba(239, 68, 68, 0.16); border-color: rgba(248, 113, 113, 0.65); color: #fca5a5;
+    }
+    .hud-btn.shave-cta:hover { background: rgba(239, 68, 68, 0.28); border-color: #f87171; color: #fff; }
+    .kbd {
+      font-family: var(--mono); font-size: 10px; padding: 2px 5px; border-radius: 4px;
+      background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); color: var(--gold);
+    }
+
+    /* Corner Live Mini-Map */
+    #minimap-card {
+      position: fixed; left: 14px; bottom: 86px; z-index: 25;
+      background: var(--panel); backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(56, 214, 245, 0.42); border-radius: 12px;
+      padding: 6px; box-shadow: 0 12px 32px rgba(0,0,0,0.65);
+      cursor: pointer; transition: border-color 0.15s;
+    }
+    #minimap-card:hover { border-color: var(--gold); }
+    #minimap-canvas { width: 184px; height: 202px; display: block; border-radius: 8px; }
+    .minimap-caption {
+      font-family: var(--mono); font-size: 10px; color: var(--cyan);
+      text-align: center; margin-top: 4px; letter-spacing: 0.05em;
+    }
+
+    /* Contextual [E] Prompt & Lore Toast */
+    #context-prompt {
+      position: fixed; left: 50%; bottom: 142px; transform: translateX(-50%); z-index: 26;
+      background: rgba(8, 14, 24, 0.94); border: 1.5px solid var(--gold);
+      padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 700;
+      color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.72), 0 0 20px rgba(244, 196, 90, 0.25);
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    #lore-toast {
+      position: fixed; right: 16px; bottom: 92px; z-index: 28;
+      width: min(390px, calc(100vw - 32px));
+      background: rgba(9, 14, 24, 0.96); border: 1.5px solid var(--cyan);
+      border-radius: 14px; padding: 14px 16px;
+      box-shadow: 0 16px 42px rgba(0,0,0,0.75);
+    }
+    #lore-toast h4 { font-size: 13px; color: var(--gold); margin-bottom: 5px; letter-spacing: 0.02em; }
+    #lore-toast p { font-size: 12.5px; line-height: 1.48; color: #e2e8f0; }
+    #lore-toast .close-x {
+      position: absolute; top: 8px; right: 10px; background: none; border: none;
+      color: var(--muted); font-size: 16px; cursor: pointer;
+    }
+
+    /* Bottom Controls Dock: Handshakes 1-5 + Cast Quick-Possess */
+    #hud-bottom {
+      position: fixed; left: 12px; right: 12px; bottom: 10px; z-index: 25;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      pointer-events: none;
+    }
+    .dock-bar {
+      pointer-events: auto;
+      background: var(--panel); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 6px 8px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+    }
+    .dock-label {
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      padding: 0 6px; text-transform: uppercase;
+    }
+    .chip-btn {
+      background: rgba(255,255,255,0.05); color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+      padding: 5px 9px; font-size: 11px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px; transition: all 0.12s;
+    }
+    .chip-btn:hover { border-color: var(--gold); color: #fff; background: rgba(244, 196, 90, 0.14); }
+    .chip-btn.active { border-color: var(--gold); background: rgba(244, 196, 90, 0.22); color: var(--gold); }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* Shared Modal Backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(3, 6, 12, 0.82); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; padding: 18px;
+    }
+    .hidden { display: none !important; }
+    .modal-shell {
+      width: min(1180px, 96vw); max-height: 92vh;
+      background: var(--panel-solid); border: 1.5px solid rgba(244, 196, 90, 0.42);
+      border-radius: 18px; display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.88);
+    }
+    .modal-hdr {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      background: rgba(255,255,255,0.02);
+    }
+    .modal-hdr h2 { font-size: 18px; font-weight: 800; color: var(--gold); letter-spacing: 0.01em; }
+    .modal-hdr .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* THE BRAIN Modal Layout */
+    .brain-grid {
+      display: grid; grid-template-columns: 240px 1fr 290px;
+      gap: 0; min-height: 520px; height: 72vh;
+    }
+    @media (max-width: 980px) {
+      .brain-grid { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
+      #minimap-card { display: none; }
+    }
+    .brain-col {
+      padding: 12px; border-right: 1px solid var(--border); overflow-y: auto;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .brain-col:last-child { border-right: none; border-left: 1px solid var(--border); }
+    .brain-sec-title {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+      color: var(--cyan); text-transform: uppercase; margin-bottom: 4px;
+    }
+    #brain-canvas { width: 100%; height: 100%; display: block; background: #060911; }
+    .brain-cast-item {
+      width: 100%; text-align: left; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.09); border-radius: 8px;
+      padding: 7px 9px; color: var(--text); cursor: pointer;
+      display: flex; align-items: center; gap: 7px; font-size: 12px;
+    }
+    .brain-cast-item:hover { border-color: var(--cyan); }
+    .brain-cast-item.active { border-color: var(--gold); background: rgba(244, 196, 90, 0.14); }
+    .brain-cast-item .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .brain-cast-item .nm { font-weight: 700; flex: 1; }
+    .brain-cast-item .rl { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+    .insp-box {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px; margin-bottom: 6px;
+    }
+    .insp-hdr { display: flex; gap: 9px; align-items: center; margin-bottom: 6px; }
+    .insp-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .insp-name { font-size: 14px; font-weight: 800; color: var(--gold); }
+    .insp-role { font-size: 11px; color: var(--muted); }
+    .insp-status { font-family: var(--mono); font-size: 10.5px; color: var(--cyan); margin-bottom: 6px; }
+    .insp-quote { font-size: 11.5px; font-style: italic; color: #cbd5e1; line-height: 1.4; margin-bottom: 9px; }
+    .insp-btns { display: flex; flex-direction: column; gap: 6px; }
+    .insp-btn {
+      width: 100%; padding: 8px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700;
+      cursor: pointer; border: 1px solid var(--border); background: #151f32; color: var(--text);
+    }
+    .insp-btn.primary { background: rgba(244, 196, 90, 0.20); border-color: var(--gold); color: var(--gold); }
+    .insp-btn.armed { background: rgba(74, 222, 128, 0.22); border-color: var(--mint); color: var(--mint); }
+
+    .brain-lm-item {
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 7px 9px; display: flex; flex-direction: column; gap: 5px;
+    }
+    .lm-top { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; }
+    .lm-num {
+      width: 18px; height: 18px; border-radius: 4px; background: var(--gold); color: #05080f;
+      font-family: var(--mono); font-size: 10px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .lm-actions { display: flex; gap: 6px; }
+    .lm-btn {
+      flex: 1; padding: 4px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 700;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.14); background: #131c2e; color: #cbd5e1;
+    }
+    .lm-btn.travel:hover { border-color: var(--gold); color: var(--gold); }
+    .lm-btn.send:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* Cutaway Physics Lab Modal */
+    .cutaway-body { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+    #cutaway-canvas {
+      width: 100%; height: 430px; display: block; border-radius: 12px;
+      border: 1px solid var(--border); background: #070b12;
+    }
+    .cutaway-controls {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .slider-wrap {
+      flex: 1; min-width: 240px; display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 12px; color: var(--gold);
+    }
+    .slider-wrap input[type=range] { flex: 1; accent-color: var(--cyan); cursor: pointer; }
+
+    /* Arizona 86334 Strategy Map Modal */
+    .az-grid {
+      display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 18px; padding: 18px;
+    }
+    @media (max-width: 900px) { .az-grid { grid-template-columns: 1fr; } }
+    .az-map-stage {
+      position: relative; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(56, 214, 245, 0.4); background: #08101d; min-height: 360px;
+    }
+    .az-map-stage img { width: 100%; height: auto; display: block; }
+    .az-pin-btn {
+      position: absolute; transform: translate(-50%, -50%);
+      width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+      border: 2px solid #fff; background: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan); transition: transform 0.15s;
+    }
+    .az-pin-btn.hq {
+      width: 26px; height: 26px; background: var(--red); border-color: var(--gold);
+      box-shadow: 0 0 20px var(--gold);
+    }
+    .az-pin-btn:hover, .az-pin-btn.active { transform: translate(-50%, -50%) scale(1.35); z-index: 4; }
+    .az-detail-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .az-pin-list { display: flex; flex-direction: column; gap: 5px; max-height: 220px; overflow-y: auto; }
+    #anamorphic-streak {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      background:
+        radial-gradient(ellipse 90% 9% at 50% 50%, rgba(103, 232, 249, 0.92), rgba(56, 189, 248, 0.42) 45%, transparent 78%),
+        linear-gradient(90deg, transparent 0%, rgba(56, 214, 245, 0.72) 22%, rgba(255, 255, 255, 0.95) 50%, rgba(56, 214, 245, 0.72) 78%, transparent 100%);
+      background-size: 100% 100%, 100% 4px;
+      background-position: center, center;
+      background-repeat: no-repeat;
+      mix-blend-mode: screen;
+      transition: opacity 0.05s linear;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport"></div>
+  <div id="anamorphic-streak"></div>
+  <div id="speech-layer"></div>
+
+  <!-- Boot / Loading Overlay -->
+  <div id="boot-overlay">
+    <div class="boot-eyebrow">Paulden, Arizona 86334 • Speed-Tac Precision Shop</div>
+    <div class="boot-title">BAY 02 INTERACTIVE 3D WORLD</div>
+    <div class="boot-sub">
+      Walkable 60fps Shop Floor, Exterior Sunset Parking Lot, 10 Possessable Robot Cast Members,
+      5 Live 3D Handshakes, Dual-Relief Cutaway Physics Lab (<code>U.S. Pat. 11,204,208 B1</code>) &amp; "The Brain" Tactical Map.
+    </div>
+    <div class="boot-bar-wrap"><div id="boot-bar"></div></div>
+    <div id="boot-status">Initializing Three.js WebGL2 PBR Engine...</div>
+    <div id="file-protocol-warn" class="file-protocol-box hidden">
+      <strong>Local File Security Notice:</strong> Browsers block ES Modules &amp; <code>.glb</code> loading over <code>file://</code>.
+      <div style="margin:10px 0;">
+        <a href="http://127.0.0.1:8634/index.html" style="display:inline-block;padding:9px 16px;border-radius:8px;background:#f5b400;color:#080c14;font-weight:800;text-decoration:none;">
+          ▶ Open Live Bay 02 Server (http://127.0.0.1:8634/index.html)
+        </a>
+      </div>
+      Or double-click <code>Launch-Bay02-World.command</code> in Finder / run:
+      <code>python3 /Users/fernandezbjork/Downloads/Speed-Tac/the-crew-engine/interactive-world/serve_world.py --open</code>
+    </div>
+  </div>
+
+  <!-- Top Telemetry & Action HUD -->
+  <div id="hud-top">
+    <div class="hud-cluster">
+      <div class="hud-pill">
+        <span class="lbl">PLAYING AS</span>
+        <span id="hud-possessed-name" class="val gold">Carl</span>
+      </div>
+      <div class="hud-pill">
+        <span class="lbl">HANDSHAKES</span>
+        <span id="hud-handshakes" class="val cyan">1,402</span>
+        <span class="lbl">| WORK</span>
+        <span class="val">0</span>
+      </div>
+      <div class="hud-pill">
+        <span class="lbl">MUSTACHE</span>
+        <span id="hud-mustache-val" class="val gold">1.15x</span>
+      </div>
+      <button id="btn-shave-mustache" class="hud-btn shave-cta" title="Buzz Foreman's growing Tony Bjork / Paul Sr. walrus mustache!">
+        ✂ Shave That Damn Mustache!
+      </button>
+    </div>
+
+    <div class="hud-cluster">
+      <div class="hud-pill" title="Live WebAudio BiquadFilterNode glass occlusion telemetry">
+        <span class="lbl">ACOUSTICS</span>
+        <span id="hud-acoustics" class="val mint">OFFICE MUFFLED 365Hz</span>
+      </div>
+      <button id="btn-cam-mode" class="hud-btn" title="Cycle Camera: 3rd-Person GTA / 1st-Person Walk / Free-Fly Drone (C)">
+        <span class="kbd">C</span> <span id="lbl-cam-mode">3rd-Person GTA</span>
+      </button>
+      <button id="btn-lighting-mode" class="hud-btn" title="Cycle Studio Lighting Preset: Golden Hour / Ep. 3 Studio / Nocturne Shift (G)">
+        <span class="kbd">G</span> <span id="lbl-lighting-mode">Golden Hour</span>
+      </button>
+      <button id="btn-thermal-mode" class="hud-btn" title="Cycle Mac Thermal Protection: Eco / Balanced / Ultra">
+        🧊 <span id="lbl-thermal-mode">Balanced</span>
+      </button>
+      <button id="btn-audio-toggle" class="hud-btn" title="Toggle 3D Spatial WebAudio">
+        🔊 <span id="lbl-audio">Audio: Click/Key</span>
+      </button>
+      <button id="btn-open-cutaway" class="hud-btn" title="Open Interactive U.S. Pat. 11,204,208 B1 Cutaway Lab (L)">
+        <span class="kbd">L</span> Cutaway Lab
+      </button>
+      <button id="btn-open-az" class="hud-btn" title="Open Arizona 86334 Strategy Map (Z)">
+        <span class="kbd">Z</span> AZ 86334
+      </button>
+      <button id="btn-open-brain" class="hud-btn brain-cta" title="Open THE BRAIN Tactical Map & Cast Command (M)">
+        <span class="kbd">M</span> THE BRAIN / MAP
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Corner Radar Mini-Map -->
+  <div id="minimap-card" title="Click or press M to open THE BRAIN Tactical Blueprint">
+    <canvas id="minimap-canvas" width="196" height="216"></canvas>
+    <div class="minimap-caption">[M] THE BRAIN • LIVE 10-CAST RADAR</div>
+  </div>
+
+  <!-- Contextual [E] Prompt -->
+  <div id="context-prompt" class="hidden">[E] Interact</div>
+
+  <!-- Inspectable Lore Card / Gag Toast -->
+  <div id="lore-toast" class="hidden">
+    <button id="btn-lore-close" class="close-x" aria-label="Close">×</button>
+    <h4 id="lore-toast-title">BAY 02 INSPECTION</h4>
+    <p id="lore-toast-body"></p>
+  </div>
+
+  <!-- Bottom Handshake 1-5 & Cast Quick-Possess Dock -->
+  <div id="hud-bottom">
+    <div class="dock-bar" id="handshake-dock">
+      <span class="dock-label">5 Handshakes:</span>
+    </div>
+    <div class="dock-bar" id="cast-dock">
+      <span class="dock-label">Possess Cast:</span>
+    </div>
+  </div>
+
+  <!-- MODAL 1: "THE BRAIN" / ELDEN RING TACTICAL MAP -->
+  <div id="brain-modal" class="modal-backdrop hidden">
+    <div class="modal-shell">
+      <div class="modal-hdr">
+        <div>
+          <h2>THE BRAIN — BAY 02 TACTICAL BLUEPRINT &amp; 10-CAST COMMAND</h2>
+          <div class="sub">
+            Click any Cast Member to <strong>Possess</strong> or <strong>Dispatch</strong> • Click any numbered Diamond to <strong>Fast-Travel</strong> • Click any floor point to send selected robot!
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="btn-brain-dap-party" class="hud-btn">⚡ Summon Dap Convergence!</button>
+          <button id="btn-brain-shave" class="hud-btn shave-cta">✂ Shave Mustache</button>
+          <button id="btn-brain-close" class="hud-btn"><span class="kbd">ESC</span> Close Map</button>
+        </div>
+      </div>
+      <div class="brain-grid">
+        <div class="brain-col">
+          <div class="brain-sec-title">10 Playable / Possessable Cast</div>
+          <div id="brain-cast-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+        </div>
+        <div style="position:relative; min-height:380px;">
+          <canvas id="brain-canvas"></canvas>
+        </div>
+        <div class="brain-col">
+          <div class="brain-sec-title">Selected Unit Command</div>
+          <div id="brain-inspector" class="insp-box"></div>
+          <div class="brain-sec-title">9 Sites of Bay 02 (Fast-Travel / Send)</div>
+          <div id="brain-landmark-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: DUAL-RELIEF PATENT 11,204,208 B1 CUTAWAY PHYSICS LAB -->
+  <div id="cutaway-modal" class="modal-backdrop hidden">
+    <div class="modal-shell" style="width:min(1040px,96vw);">
+      <div class="modal-hdr">
+        <div>
+          <h2>DUAL-RELIEF KINEMATICS CUTAWAY LAB — U.S. PAT. 11,204,208 B1</h2>
+          <div class="sub">
+            Real-Time 30-Round Closed-Bolt Stack Resistance Comparison • Paulden, AZ Mechanical Engineering Bench
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button id="btn-cutaway-split" class="hud-btn active">Side-by-Side Split</button>
+          <button id="btn-cutaway-pat" class="hud-btn">Speed-Tac Dual-Relief</button>
+          <button id="btn-cutaway-flat" class="hud-btn">Standard Flat Jam</button>
+          <button id="btn-cutaway-close" class="hud-btn"><span class="kbd">ESC</span> Close</button>
+        </div>
+      </div>
+      <div class="cutaway-body">
+        <canvas id="cutaway-canvas"></canvas>
+        <div class="cutaway-controls">
+          <label class="slider-wrap">
+            <span>UPWARD MAGAZINE SEATING: <strong id="cutaway-pct-val">88%</strong></span>
+            <input id="cutaway-slider" type="range" min="0" max="100" value="88" />
+          </label>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btn-cutaway-auto" class="hud-btn active">▶ Auto-Test 1-Finger Click</button>
+            <button id="btn-cutaway-slam" class="hud-btn shave-cta">💥 Test 75-LB Flat-Steel Slam</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ARIZONA 86334 STRATEGY MAP -->
+  <div id="az-modal" class="modal-backdrop hidden">
+    <div class="modal-shell" style="width:min(980px,96vw);">
+      <div class="modal-hdr">
+        <div>
+          <h2>ARIZONA 86334 TACTICAL PROVING &amp; DEALER NETWORK</h2>
+          <div class="sub">Origin HQ: Paulden, AZ 86334 (Yavapai County • Elev. 4,475 ft • Hwy 89) — Click any glowing pin!</div>
+        </div>
+        <button id="btn-az-close" class="hud-btn"><span class="kbd">ESC</span> Close</button>
+      </div>
+      <div class="az-grid">
+        <div class="az-map-stage" id="az-map-stage">
+          <img src="./assets/textures/arizona_86334_map_clean.png" alt="Arizona 86334 Strategy Map" />
+        </div>
+        <div class="az-detail-card">
+          <div class="brain-sec-title" id="az-pin-status">ORIGIN HQ • ACTIVE</div>
+          <h3 id="az-pin-title" style="color:var(--gold); font-size:17px;"></h3>
+          <div id="az-pin-meta" style="font-family:var(--mono); font-size:11.5px; color:var(--cyan);"></div>
+          <p id="az-pin-lore" style="font-size:13px; line-height:1.5; color:#e2e8f0;"></p>
+          <div class="brain-sec-title" style="margin-top:6px;">All 10 Proving &amp; Network Pins</div>
+          <div id="az-pin-list" class="az-pin-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classic non-module script so file:// double-clicks immediately show & auto-redirect to live 127.0.0.1:8634! -->
+  <script>
+    (function () {
+      if (window.location.protocol === 'file:') {
+        var warn = document.getElementById('file-protocol-warn');
+        var st = document.getElementById('boot-status');
+        if (warn) warn.classList.remove('hidden');
+        if (st) st.textContent = 'Checking local Paulden 8634 server (http://127.0.0.1:8634)...';
+        fetch('http://127.0.0.1:8634/index.html', { mode: 'no-cors', cache: 'no-store' })
+          .then(function () {
+            window.location.replace('http://127.0.0.1:8634/index.html');
+          })
+          .catch(function () {
+            if (st) st.textContent = 'Click Launch-Bay02-World.command or run serve_world.py to open on port 8634.';
+          });
+      }
+    })();
+  </script>
+  <script type="module">
+    import * as THREE from './vendor/three.module.js';
+    import { EffectComposer } from './vendor/EffectComposer.js';
+    import { RenderPass } from './vendor/RenderPass.js';
+    import { UnrealBloomPass } from './vendor/UnrealBloomPass.js';
+    import { OutputPass } from './vendor/OutputPass.js';
+
+    import { SpatialAudioEngine } from './js/spatial_audio.js';
+    import { CAST_MANIFEST, CastManager, resetBodyPose, applyZeroSlideGait, applyStumbleOverlay, applyTurnStepLift, triggerSquash, setEyesAndBrows } from './js/characters.js';
+    import { stepPlayerLocomotion, applyHeadLead } from './js/motion_v7.js';
+    import { HANDSHAKE_TYPES, HandshakeManager } from './js/handshakes.js';
+    import { AZ_86334_PINS, Bay02World } from './js/world.js';
+    import { CutawayPhysicsLab } from './js/cutaway_lab.js';
+    import { BrainMapController } from './js/brain_map.js';
+
+    if (window.location.protocol === 'file:') {
+      document.getElementById('file-protocol-warn').classList.remove('hidden');
+    }
+
+    const viewportEl = document.getElementById('viewport');
+    const speechLayerEl = document.getElementById('speech-layer');
+    const bootOverlay = document.getElementById('boot-overlay');
+    const bootBar = document.getElementById('boot-bar');
+    const bootStatus = document.getElementById('boot-status');
+
+    // --- 1. THREE.JS WEBGL2 PBR + ACESFILMIC + SOFT SHADOWS + BLOOM ---
+    const TEASER_PARAMS = new URLSearchParams(window.location.search);
+    const TEASER_MODE = TEASER_PARAMS.has('teaser');
+    const AUDIT_MODE = TEASER_PARAMS.has('audit');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: AUDIT_MODE });
+    let teaser = null;
+    if (TEASER_MODE) {
+      renderer.setPixelRatio(1);
+      renderer.setSize(1080, 1920, false);
+    } else if (AUDIT_MODE) {
+      renderer.setPixelRatio(1);
+      renderer.setSize(1280, 720, false);
+    } else {
+      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+    viewportEl.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(52, TEASER_MODE ? 1080 / 1920 : AUDIT_MODE ? 1280 / 720 : window.innerWidth / window.innerHeight, 0.06, 160);
+    const anamorphicStreakEl = document.getElementById('anamorphic-streak');
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloomW = TEASER_MODE
+      ? 1080
+      : Math.max(320, Math.round((AUDIT_MODE ? 1280 : window.innerWidth) * 0.5));
+    const bloomH = TEASER_MODE
+      ? 1920
+      : Math.max(180, Math.round((AUDIT_MODE ? 720 : window.innerHeight) * 0.5));
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(bloomW, bloomH),
+      0.24, // half-res subtle Pixar/Severance highlight bloom (low Mac GPU thermals)
+      0.35,
+      0.84
+    );
+    composer.addPass(bloomPass);
+    composer.addPass(new OutputPass());
+
+    // Mac Thermal Governor: Eco / Balanced / Ultra + Tab-Hidden Zero-GPU Pause + 45s Eco-Idle 22fps Throttle
+    const thermalState = {
+      mode: 'Balanced',
+      modes: ['Eco', 'Balanced', 'Ultra'],
+      idx: 1,
+      idleSec: 0,
+      ecoIdle: false,
+      fps: 60,
+      _frames: 0,
+      _acc: 0,
+    };
+    window.__v8ThermalState = thermalState;
+    function applyThermalMode(modeName) {
+      thermalState.mode = modeName;
+      if (TEASER_MODE || AUDIT_MODE) return;
+      const dpr = window.devicePixelRatio || 1;
+      if (modeName === 'Eco') {
+        renderer.setPixelRatio(1);
+        bloomPass.strength = 0.14;
+      } else if (modeName === 'Balanced') {
+        renderer.setPixelRatio(Math.min(1.6, dpr));
+        bloomPass.strength = 0.24;
+      } else {
+        renderer.setPixelRatio(Math.min(2.0, dpr));
+        bloomPass.strength = 0.28;
+      }
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+      bloomPass.resolution.set(
+        Math.max(320, Math.round(window.innerWidth * 0.5)),
+        Math.max(180, Math.round(window.innerHeight * 0.5))
+      );
+    }
+    if (!TEASER_MODE && !AUDIT_MODE) {
+      renderer.setPixelRatio(Math.min(1.6, window.devicePixelRatio || 1));
+    }
+
+    // Physical Camera Trauma Spring Recoil + Cooke Cyan Anamorphic Flare State!
+    let cameraTrauma = 0;
+    let cameraTraumaClock = 0;
+    let anamorphicFlashTimer = 0;
+    function addCameraTrauma(amount = 0.65, anamorphicArc = false) {
+      cameraTrauma = Math.min(1.25, cameraTrauma + amount);
+      cameraTraumaClock = 0;
+      if (anamorphicArc) {
+        anamorphicFlashTimer = 0.19; // 190ms horizontal Cooke cyan anamorphic arc streak!
+      }
+    }
+
+    // --- 2. CORE SUBSYSTEMS ---
+    const audio = new SpatialAudioEngine();
+    const world = new Bay02World(scene, renderer, audio);
+
+    let castMgr = null;
+    let handshakeMgr = null;
+    let cutawayLab = null;
+    let brainMap = null;
+
+    // Player & Camera Controller State ("Main Street USA" spawn sightline: camYaw = +0.62 frames Pit Erdtree + Office + LED Board!)
+    const CAM_MODES = ['3rd-Person GTA', '1st-Person Walk', 'Free-Fly Drone'];
+    let camModeIdx = 0;
+    let possessedId = 'carl';
+    let camYaw = 0.62;
+    let camPitch = 0.18;
+    let camDist = 2.05;
+    const dronePos = new THREE.Vector3(0, 3.2, 16.5);
+    const fpPos = new THREE.Vector3(0, 0.58, 15.0);
+    let jumpY = 0;
+    let jumpVy = 0;
+    let rfidAutoCooldown = 0;
+    let carlHoseCooldown = 0;
+    let currentHotspot = null;
+    let nearestPartner = null;
+
+    const keys = new Set();
+    let isDragging = false;
+    let dragMoved = false;
+    let lastPtrX = 0, lastPtrY = 0;
+
+    function showToast(title, body, durMs = 6200) {
+      const box = document.getElementById('lore-toast');
+      document.getElementById('lore-toast-title').textContent = title;
+      document.getElementById('lore-toast-body').textContent = body;
+      box.classList.remove('hidden');
+      window.clearTimeout(showToast._tid);
+      showToast._tid = window.setTimeout(() => box.classList.add('hidden'), durMs);
+    }
+    document.getElementById('btn-lore-close').addEventListener('click', () => {
+      document.getElementById('lore-toast').classList.add('hidden');
+    });
+
+    function ensureAudioUnlocked() {
+      if (!audio.ctx) {
+        audio.unlock();
+        document.getElementById('lbl-audio').textContent = 'Audio: ON';
+      }
+    }
+
+    function possessCharacter(charId, announce = true) {
+      if (!castMgr) return;
+      // Restore head visibility on previously possessed bot
+      const prev = castMgr.getCharacter(possessedId);
+      if (prev && prev.J.head) prev.J.head.visible = true;
+
+      const next = castMgr.getCharacter(charId);
+      if (!next) return;
+      possessedId = next.id;
+      next.dispatchTarget = null;
+      camYaw = next.anchor.rotation.y + Math.PI;
+      if (camModeIdx === 2) {
+        camModeIdx = 0;
+        syncCamModeUI();
+      }
+      document.getElementById('hud-possessed-name').textContent = next.def.shortName;
+      for (const b of document.querySelectorAll('#cast-dock .chip-btn')) {
+        b.classList.toggle('active', b.dataset.charId === possessedId);
+      }
+      if (announce) {
+        castMgr.triggerSpeech(next, null, 3.8);
+        audio.playCharacterVoiceContour(next.id, next.anchor.position);
+      }
+    }
+
+    function syncCamModeUI() {
+      document.getElementById('lbl-cam-mode').textContent = CAM_MODES[camModeIdx];
+      if (!castMgr) return;
+      const pChar = castMgr.getCharacter(possessedId);
+      if (!pChar) return;
+      if (camModeIdx === 1) {
+        // 1st-Person Walk starts right at possessed character
+        fpPos.set(pChar.anchor.position.x, 0.52 * pChar.J._scale, pChar.anchor.position.z);
+        pChar.J.head.visible = false;
+      } else {
+        pChar.J.head.visible = true;
+        if (camModeIdx === 2) {
+          dronePos.copy(camera.position);
+          dronePos.y = Math.max(1.8, dronePos.y);
+        }
+      }
+    }
+
+    function fastTravelToLandmark(lm) {
+      if (!castMgr) return;
+      // Auto-open Foreman's Office glass door when fast-traveling inside Office 01 so you're never locked inside!
+      if (lm.id === 'foreman_office' || (lm.x >= 5.0 && lm.x <= 10.0 && lm.z >= 3.6 && lm.z <= 7.0)) {
+        world.officeDoorOpen = true;
+      }
+      const pChar = castMgr.getCharacter(possessedId);
+      if (pChar && camModeIdx !== 2) {
+        const safe = world.resolveCollisionXZ(lm.x, lm.z, 0.30 * pChar.J._scale);
+        pChar.anchor.position.set(safe.x, 0, safe.z);
+        pChar.anchor.rotation.y = lm.heading || 0;
+        camYaw = (lm.heading || 0) + Math.PI;
+        fpPos.set(safe.x, 0.52 * pChar.J._scale, safe.z);
+      } else {
+        const fwdX = Math.sin(lm.heading || 0);
+        const fwdZ = Math.cos(lm.heading || 0);
+        dronePos.set(lm.x - fwdX * 1.5, 2.2, lm.z - fwdZ * 1.5);
+        camYaw = (lm.heading || 0) + Math.PI;
+      }
+      showToast(lm.name.toUpperCase(), lm.desc, 4500);
+    }
+
+    function triggerPlayerHandshake(typeId = null) {
+      if (!castMgr || !handshakeMgr) return;
+      ensureAudioUnlocked();
+      const me = castMgr.getCharacter(possessedId);
+      if (!me) return;
+
+      // Find nearest available cast member
+      let partner = null;
+      let bestD = Infinity;
+      for (const other of castMgr.cast) {
+        if (other.id === me.id || other.activeHandshake) continue;
+        const d = Math.hypot(
+          other.anchor.position.x - me.anchor.position.x,
+          other.anchor.position.z - me.anchor.position.z
+        );
+        if (d < bestD) {
+          bestD = d;
+          partner = other;
+        }
+      }
+      if (!partner) return;
+
+      // If partner is > 2.2m away, warp them smoothly within handshake reach!
+      if (bestD > 2.2) {
+        const fwdX = -Math.sin(camYaw);
+        const fwdZ = -Math.cos(camYaw);
+        const tx = me.anchor.position.x + fwdX * 0.65;
+        const tz = me.anchor.position.z + fwdZ * 0.65;
+        const safe = world.resolveCollisionXZ(tx, tz, 0.28 * partner.J._scale);
+        partner.anchor.position.set(safe.x, 0, safe.z);
+      }
+
+      const chosenType = typeId || me.def.defaultHandshake || 1;
+      handshakeMgr.startHandshake(me, partner, chosenType, audio, castMgr);
+    }
+
+    function triggerHotspotObject(h) {
+      if (!h) return;
+      ensureAudioUnlocked();
+      if (h.type === 'cutaway_lab') {
+        cutawayLab.open(audio);
+      } else if (h.type === 'az_map') {
+        openAzModal();
+      } else if (h.type === 'office_door') {
+        const openNow = world.toggleOfficeDoor();
+        showToast(
+          openNow ? 'OFFICE 01 DOOR: OPEN' : 'OFFICE 01 DOOR: CLOSED',
+          openNow
+            ? 'Stepping inside Foreman’s Office opens the WebAudio BiquadFilterNode from 365 Hz muffled glass to 16 kHz full-band clarity!'
+            : 'Acoustic double-pane glass sealed—Foreman’s shop rants are muffled back down to 365 Hz outside.',
+          4200
+        );
+      } else if (h.type === 'rfid_tap') {
+        const msg = world.triggerRfidBadgeIn();
+        showToast('ENTRANCE RFID TURNSTILE', msg, 3800);
+      } else if (h.type === 'porta_knock') {
+        const gag = world.knockPortaPotty();
+        showToast('OCCUPIED PORTA-POTTY STALL #1', gag, 5800);
+      } else if (h.type === 'ep03_one_more_chance') {
+        const msg = world.triggerGiantMagSeatingTest(false);
+        if (castMgr) {
+          castMgr.broadcastWorldEvent('giant_mag_seated', new THREE.Vector3(0, 0.7, 13.05), possessedId);
+        }
+        showToast('EP. 03 — "ONE MORE CHANCE" 1-FINGER RIG', msg, 5600);
+      } else if (h.type === 'lore_card') {
+        showToast(h.title, h.body, 6500);
+      }
+    }
+
+    function executeContextInteraction() {
+      ensureAudioUnlocked();
+      if (nearestPartner && (!currentHotspot || nearestPartner.dist < 1.55)) {
+        triggerPlayerHandshake(null);
+        return;
+      }
+      if (!currentHotspot) {
+        triggerPlayerHandshake(null);
+        return;
+      }
+      triggerHotspotObject(currentHotspot);
+    }
+
+    // --- 3. ARIZONA 86334 STRATEGY MODAL ---
+    const azModalEl = document.getElementById('az-modal');
+    function selectAzPin(pin) {
+      document.getElementById('az-pin-status').textContent = pin.status;
+      document.getElementById('az-pin-title').textContent = pin.name;
+      document.getElementById('az-pin-meta').textContent = `${pin.region}  •  ${pin.coords}`;
+      document.getElementById('az-pin-lore').textContent = pin.lore;
+      for (const b of document.querySelectorAll('.az-pin-btn, .az-list-btn')) {
+        b.classList.toggle('active', b.dataset.pinId === pin.id);
+      }
+    }
+    function initAzModal() {
+      const stage = document.getElementById('az-map-stage');
+      const list = document.getElementById('az-pin-list');
+      for (const pin of AZ_86334_PINS) {
+        const marker = document.createElement('button');
+        marker.className = `az-pin-btn ${pin.isHQ ? 'hq' : ''}`;
+        marker.dataset.pinId = pin.id;
+        marker.title = pin.name;
+        // Position over left-half Arizona state graphic on arizona_86334_map_clean.png
+        marker.style.left = `${(12 + pin.nx * 36).toFixed(1)}%`;
+        marker.style.top = `${(16 + pin.ny * 70).toFixed(1)}%`;
+        marker.addEventListener('click', () => selectAzPin(pin));
+        stage.appendChild(marker);
+
+        const item = document.createElement('button');
+        item.className = 'brain-cast-item az-list-btn';
+        item.dataset.pinId = pin.id;
+        item.innerHTML = `
+          <span class="dot" style="background:${pin.isHQ ? '#ef4444' : '#38d6f5'}"></span>
+          <span class="nm">${pin.name}</span>
+        `;
+        item.addEventListener('click', () => selectAzPin(pin));
+        list.appendChild(item);
+      }
+      selectAzPin(AZ_86334_PINS[0]);
+      document.getElementById('btn-az-close').addEventListener('click', () => azModalEl.classList.add('hidden'));
+    }
+    function openAzModal() {
+      azModalEl.classList.remove('hidden');
+    }
+
+    // --- 4. BUILD DOCKS & BIND INPUTS ---
+    function initHudButtons() {
+      const hsDock = document.getElementById('handshake-dock');
+      for (const h of HANDSHAKE_TYPES) {
+        const b = document.createElement('button');
+        b.className = 'chip-btn';
+        b.title = h.desc;
+        b.innerHTML = `<span class="kbd">${h.key}</span> ${h.shortName.split('. ')[1]}`;
+        b.addEventListener('click', () => triggerPlayerHandshake(h.id));
+        hsDock.appendChild(b);
+      }
+
+      const castDock = document.getElementById('cast-dock');
+      for (const c of CAST_MANIFEST) {
+        const b = document.createElement('button');
+        b.className = `chip-btn ${c.id === possessedId ? 'active' : ''}`;
+        b.dataset.charId = c.id;
+        b.innerHTML = `<span class="chip-dot" style="background:${c.color}"></span>${c.shortName}`;
+        b.addEventListener('click', () => {
+          ensureAudioUnlocked();
+          possessCharacter(c.id, true);
+        });
+        castDock.appendChild(b);
+      }
+
+      document.getElementById('btn-shave-mustache').addEventListener('click', () => {
+        ensureAudioUnlocked();
+        const mPos = castMgr.shaveForemanMustache();
+        if (mPos) audio.playMustacheShave(mPos);
+        showToast(
+          'MUSTACHE BUZZED TO STUBBLE (0.46x)!',
+          'Foreman: "SHAVE THAT DAMN MUSTACHE?! This handlebar is pure Tony Bjork custom-chopper heritage!" (Watch closely—it’s already growing back...)',
+          5200
+        );
+      });
+
+      document.getElementById('btn-cam-mode').addEventListener('click', () => {
+        camModeIdx = (camModeIdx + 1) % CAM_MODES.length;
+        syncCamModeUI();
+      });
+
+      document.getElementById('btn-lighting-mode').addEventListener('click', () => {
+        const pName = world.cycleLightingPreset();
+        const el = document.getElementById('lbl-lighting-mode');
+        if (el) el.textContent = pName;
+        showToast(`STUDIO LIGHTING: ${pName.toUpperCase()}`, 'Press [G] anytime to switch between Golden Hour, Ep. 3 Studio Bright, and Nocturne Shift.', 3200);
+      });
+
+      document.getElementById('btn-thermal-mode').addEventListener('click', () => {
+        thermalState.idx = (thermalState.idx + 1) % thermalState.modes.length;
+        const m = thermalState.modes[thermalState.idx];
+        applyThermalMode(m);
+        const el = document.getElementById('lbl-thermal-mode');
+        if (el) el.textContent = m;
+      });
+
+      document.getElementById('btn-audio-toggle').addEventListener('click', () => {
+        const on = audio.toggleMute();
+        document.getElementById('lbl-audio').textContent = on ? 'Audio: ON' : 'Audio: MUTED';
+      });
+
+      document.getElementById('btn-open-cutaway').addEventListener('click', () => {
+        ensureAudioUnlocked();
+        cutawayLab.toggle();
+      });
+
+      document.getElementById('btn-open-az').addEventListener('click', () => openAzModal());
+      document.getElementById('btn-open-brain').addEventListener('click', () => brainMap.toggle(possessedId));
+      document.getElementById('context-prompt').addEventListener('click', () => executeContextInteraction());
+    }
+
+    // Pointer / Trackpad Orbit + Direct 3D Character Click
+    const raycaster = new THREE.Raycaster();
+    const ptrNdc = new THREE.Vector2();
+
+    viewportEl.addEventListener('pointerdown', (e) => {
+      ensureAudioUnlocked();
+      thermalState.idleSec = 0;
+      isDragging = true;
+      dragMoved = false;
+      lastPtrX = e.clientX;
+      lastPtrY = e.clientY;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      thermalState.idleSec = 0;
+      if (!isDragging) return;
+      const dx = e.clientX - lastPtrX;
+      const dy = e.clientY - lastPtrY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+      lastPtrX = e.clientX;
+      lastPtrY = e.clientY;
+
+      camYaw -= dx * 0.0052;
+      camPitch = Math.max(-0.55, Math.min(1.15, camPitch + dy * 0.0042));
+    });
+
+    window.addEventListener('pointerup', (e) => {
+      if (isDragging && !dragMoved && castMgr && e.target === renderer.domElement) {
+        // Raycast 3D click: check Elden Ring "Sites of Discovery" Hotspot Diamonds first, then Cast Members!
+        ptrNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+        ptrNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(ptrNdc, camera);
+
+        if (world.hotspotClickMeshes && world.hotspotClickMeshes.length > 0) {
+          const hsHits = raycaster.intersectObjects(world.hotspotClickMeshes, false);
+          if (hsHits.length > 0 && hsHits[0].distance < 18.0) {
+            const hObj = hsHits[0].object.userData.hotspot;
+            if (hObj) {
+              triggerHotspotObject(hObj);
+              isDragging = false;
+              return;
+            }
+          }
+        }
+
+        let hitChar = null;
+        let bestDist = 28;
+        const tmpBox = new THREE.Box3();
+        for (const c of castMgr.cast) {
+          tmpBox.setFromObject(c.anchor);
+          const hitPt = new THREE.Vector3();
+          if (raycaster.ray.intersectBox(tmpBox, hitPt)) {
+            const d = hitPt.distanceTo(camera.position);
+            if (d < bestDist) {
+              bestDist = d;
+              hitChar = c;
+            }
+          }
+        }
+        if (hitChar) {
+          if (hitChar.id !== possessedId) {
+            possessCharacter(hitChar.id, true);
+            showToast(
+              `POSSESSED: ${hitChar.def.name.toUpperCase()}`,
+              `${hitChar.def.role} — Use WASD / Arrows to walk around Bay 02, or press [1–5] to trigger a 3D handshake!`,
+              3600
+            );
+          } else {
+            castMgr.triggerSpeech(hitChar, null, 3.8);
+            audio.playCharacterVoiceContour(hitChar.id, hitChar.anchor.position);
+          }
+        }
+      }
+      isDragging = false;
+    });
+
+    viewportEl.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        thermalState.idleSec = 0;
+        camDist = Math.max(0.95, Math.min(5.2, camDist + e.deltaY * 0.0025));
+      },
+      { passive: false }
+    );
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      ensureAudioUnlocked();
+      thermalState.idleSec = 0;
+      const k = e.key.toLowerCase();
+      keys.add(k);
+
+      if (e.key === 'Escape') {
+        if (brainMap && brainMap.isOpen) brainMap.close();
+        if (cutawayLab && cutawayLab.isOpen) cutawayLab.close();
+        azModalEl.classList.add('hidden');
+        return;
+      }
+      if (k === 'm') {
+        e.preventDefault();
+        if (brainMap) brainMap.toggle(possessedId);
+      } else if (k === 'l') {
+        e.preventDefault();
+        if (cutawayLab) cutawayLab.toggle();
+      } else if (k === 'z') {
+        e.preventDefault();
+        azModalEl.classList.toggle('hidden');
+      } else if (k === 'c') {
+        camModeIdx = (camModeIdx + 1) % CAM_MODES.length;
+        syncCamModeUI();
+      } else if (k === 'g') {
+        const pName = world.cycleLightingPreset();
+        const el = document.getElementById('lbl-lighting-mode');
+        if (el) el.textContent = pName;
+        showToast(`STUDIO LIGHTING: ${pName.toUpperCase()}`, 'Switched Bay 02 PMREM / key / rim light preset.', 2800);
+      } else if (k === 'e' && camModeIdx !== 2) {
+        executeContextInteraction();
+      } else if (['1', '2', '3', '4', '5'].includes(k)) {
+        triggerPlayerHandshake(Number(k));
+      } else if (e.code === 'Space' && camModeIdx !== 2 && jumpY <= 0.001) {
+        jumpVy = 3.1;
+        const meJ = castMgr && castMgr.getCharacter(possessedId);
+        if (meJ) triggerSquash(meJ, 0.13);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys.delete(e.key.toLowerCase());
+    });
+
+    window.addEventListener('resize', () => {
+      if (TEASER_MODE || AUDIT_MODE) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+      bloomPass.resolution.set(
+        Math.max(320, Math.round(window.innerWidth * 0.5)),
+        Math.max(180, Math.round(window.innerHeight * 0.5))
+      );
+    });
+
+    // --- 5. PLAYER MOVEMENT & 3-MODE CAMERA UPDATE ---
+    const _camFwd = new THREE.Vector3();
+    const _camUp = new THREE.Vector3(0, 1, 0);
+    const _projVec = new THREE.Vector3();
+    const speechDomPool = new Map();
+
+    function updatePlayerAndCamera(dt, elapsed) {
+      if (!castMgr) return;
+      const modalOpen = (brainMap && brainMap.isOpen) || (cutawayLab && cutawayLab.isOpen) || !azModalEl.classList.contains('hidden');
+
+      let moveFwd = 0, moveRight = 0, moveUp = 0;
+      if (!modalOpen) {
+        if (keys.has('w') || keys.has('arrowup')) moveFwd += 1;
+        if (keys.has('s') || keys.has('arrowdown')) moveFwd -= 1;
+        if (keys.has('d') || keys.has('arrowright')) moveRight += 1;
+        if (keys.has('a') || keys.has('arrowleft')) moveRight -= 1;
+        if (keys.has(' ') || keys.has('e')) moveUp += 1;
+        if (keys.has('q') || keys.has('control')) moveUp -= 1;
+      }
+      const sprint = keys.has('shift');
+
+      const me = castMgr.getCharacter(possessedId);
+
+      // Gravity jump arc for 3rd/1st person + V8 Pixar landing squash & witness broadcast
+      const wasAirborne = jumpY > 0.015;
+      if (jumpY > 0 || jumpVy > 0) {
+        jumpY += jumpVy * dt;
+        jumpVy -= 9.8 * dt;
+        if (jumpY <= 0) {
+          jumpY = 0;
+          jumpVy = 0;
+          if (wasAirborne && me) {
+            triggerSquash(me, -0.16);
+            if (audio) audio.playFootstep(me.anchor.position, true, me.J._scale);
+            castMgr.broadcastWorldEvent('jump_land', me.anchor.position, me.id);
+          }
+        }
+      }
+
+      const fwdX = -Math.sin(camYaw);
+      const fwdZ = -Math.cos(camYaw);
+      const rgtX = Math.cos(camYaw);
+      const rgtZ = -Math.sin(camYaw);
+
+      if (camModeIdx === 0 && me) {
+        // MODE 0: 3RD-PERSON GTA CAMERA
+        if (!me.activeHandshake) {
+          const dirX = fwdX * moveFwd + rgtX * moveRight;
+          const dirZ = fwdZ * moveFwd + rgtZ * moveRight;
+          const len = Math.hypot(dirX, dirZ);
+          const baseSpd = (sprint ? 4.8 : 2.75) * (me.id === 'tiny' ? 1.15 : 1.0);
+          const loco = stepPlayerLocomotion(me, len > 1e-3 ? dirX : 0, len > 1e-3 ? dirZ : 0, baseSpd, dt);
+          if (len > 1e-3 || loco.speed > 0.04) {
+            const res = world.resolveCollisionXZ(
+              me.anchor.position.x + loco.vx,
+              me.anchor.position.z + loco.vz,
+              0.28 * me.J._scale
+            );
+            const moved = Math.hypot(res.x - me.anchor.position.x, res.z - me.anchor.position.z);
+            me.anchor.position.x = res.x;
+            me.anchor.position.z = res.z;
+            me.anchor.position.y = jumpY;
+            me.cumArcLength += moved;
+
+            const moveAng = len > 1e-3 ? Math.atan2(dirX, dirZ) : Math.atan2(me._pVelX || 0, me._pVelZ || 1);
+            let dyaw = moveAng - me.anchor.rotation.y;
+            while (dyaw > Math.PI) dyaw -= Math.PI * 2;
+            while (dyaw < -Math.PI) dyaw += Math.PI * 2;
+            const yawStep = dyaw * Math.min(1, dt * 13);
+            me.anchor.rotation.y += yawStep;
+
+            resetBodyPose(me);
+            const stepped = applyZeroSlideGait(me, moved > 1e-4 && jumpY < 0.02, sprint, dt);
+            if (jumpY > 0.03) {
+              const tuck = Math.min(1, jumpY * 3.5);
+              me.J.thighL.rotation.x -= 0.42 * tuck;
+              me.J.thighR.rotation.x -= 0.25 * tuck;
+              me.J.kneeL.rotation.x += 0.65 * tuck;
+              me.J.kneeR.rotation.x += 0.42 * tuck;
+              me.J.spine.rotation.x += 0.08 * tuck;
+            }
+            applyHeadLead(me, dyaw * 0.45);
+            if (moved <= 1e-4 && Math.abs(yawStep / Math.max(dt, 1e-3)) > 0.35) {
+              applyTurnStepLift(me, yawStep / Math.max(dt, 1e-3), dt);
+            }
+            if (stepped && jumpY < 0.02) {
+              audio.playFootstep(me.anchor.position, sprint, me.J._scale);
+            }
+            world.applyDynamicPropImpulses(me.anchor.position, loco.speed, dt);
+            if (sprint && loco.speed > 3.6) {
+              castMgr.broadcastWorldEvent('sprint_pass', me.anchor.position, me.id);
+            }
+            setEyesAndBrows(me.J, 1.1, sprint ? 0.6 : 0.3, sprint ? 'happy' : 'neutral');
+
+            // Carl Green-Mile Pneumatic Air Hose Stumble Easter Egg!
+            if (
+              me.id === 'carl' &&
+              carlHoseCooldown <= 0 &&
+              res.x > 4.8 && res.x < 6.3 &&
+              res.z > 8.35 && res.z < 8.85
+            ) {
+              carlHoseCooldown = 7.0;
+              me.stumbleTimer = 0.7;
+              jumpVy = 1.65;
+              audio.playAirHoseTrip(me.anchor.position);
+              addCameraTrauma(0.58, false);
+              castMgr.triggerSpeech(me, 'Whoa—air hose! I’m good! Totally balanced!', 3.4);
+            }
+            if (me.stumbleTimer > 0) {
+              applyStumbleOverlay(me);
+            }
+          } else {
+            me.anchor.position.y = jumpY;
+            castMgr._applyIdleRoutine(me, elapsed);
+            if (jumpY > 0.03) {
+              const tuck = Math.min(1, jumpY * 3.5);
+              me.J.thighL.rotation.x -= 0.38 * tuck;
+              me.J.kneeL.rotation.x += 0.58 * tuck;
+            }
+            if (me.stumbleTimer > 0) applyStumbleOverlay(me);
+            me.anchor.position.y = jumpY;
+          }
+        }
+
+        // Smooth Spring Orbit Camera with Anti-Wall-Clip Clamp!
+        const focusY = (0.42 + jumpY) * me.J._scale;
+        const focusX = me.anchor.position.x;
+        const focusZ = me.anchor.position.z;
+        const effDist = camDist * (me.id === 'tiny' ? 1.35 : 1.0);
+        const horiz = effDist * Math.cos(camPitch);
+        let idealX = focusX + Math.sin(camYaw) * horiz;
+        let idealZ = focusZ + Math.cos(camYaw) * horiz;
+        let idealY = Math.max(0.24, focusY + effDist * Math.sin(camPitch));
+
+        // Step-clamp camera path so walls never occlude player!
+        for (const f of [0.4, 0.7, 1.0]) {
+          const tx = focusX + (idealX - focusX) * f;
+          const tz = focusZ + (idealZ - focusZ) * f;
+          const chk = world.resolveCollisionXZ(tx, tz, 0.18);
+          if (Math.hypot(chk.x - tx, chk.z - tz) > 0.02) {
+            idealX = chk.x;
+            idealZ = chk.z;
+            break;
+          }
+        }
+        camera.position.lerp(new THREE.Vector3(idealX, idealY, idealZ), Math.min(1, dt * 14));
+        camera.lookAt(focusX, focusY + 0.06, focusZ);
+      } else if (camModeIdx === 1) {
+        // MODE 1: 1ST-PERSON WALK CAMERA (with live zero-slide leg IK & spatial robotic footsteps!)
+        const dirX = fwdX * moveFwd + rgtX * moveRight;
+        const dirZ = fwdZ * moveFwd + rgtZ * moveRight;
+        const len = Math.hypot(dirX, dirZ);
+        let movedFp = 0;
+        if (len > 1e-3) {
+          const spd = sprint ? 5.2 : 3.1;
+          const res = world.resolveCollisionXZ(
+            fpPos.x + (dirX / len) * spd * dt,
+            fpPos.z + (dirZ / len) * spd * dt,
+            0.26
+          );
+          movedFp = Math.hypot(res.x - fpPos.x, res.z - fpPos.z);
+          fpPos.x = res.x;
+          fpPos.z = res.z;
+        }
+        if (me) {
+          me.anchor.position.set(fpPos.x, jumpY, fpPos.z);
+          me.anchor.rotation.y = camYaw + Math.PI;
+          me.cumArcLength += movedFp;
+          resetBodyPose(me);
+          const steppedFp = applyZeroSlideGait(me, movedFp > 1e-4 && jumpY < 0.02, sprint, dt);
+          if (steppedFp && jumpY < 0.02) {
+            audio.playFootstep(me.anchor.position, sprint, me.J._scale);
+          }
+          if (movedFp > 1e-4) {
+            world.applyDynamicPropImpulses(fpPos, movedFp / Math.max(dt, 1e-3), dt);
+          }
+        }
+        const bob = movedFp > 1e-4 ? Math.sin(elapsed * (sprint ? 14 : 9)) * 0.018 : 0;
+        camera.position.set(fpPos.x, 0.56 + jumpY + bob, fpPos.z);
+        camera.rotation.set(-camPitch, camYaw, 0, 'YXZ');
+      } else {
+        // MODE 2: FREE-FLY DRONE CAMERA
+        const spd = sprint ? 11.0 : 5.5;
+        const pitchCos = Math.cos(-camPitch);
+        const dfx = -Math.sin(camYaw) * pitchCos;
+        const dfy = Math.sin(-camPitch);
+        const dfz = -Math.cos(camYaw) * pitchCos;
+        dronePos.x = Math.max(-24, Math.min(24, dronePos.x + (dfx * moveFwd + rgtX * moveRight) * spd * dt));
+        dronePos.z = Math.max(-16, Math.min(34, dronePos.z + (dfz * moveFwd + rgtZ * moveRight) * spd * dt));
+        dronePos.y = Math.max(0.35, Math.min(18.0, dronePos.y + (dfy * moveFwd + moveUp) * spd * dt));
+        camera.position.copy(dronePos);
+        camera.rotation.set(-camPitch, camYaw, 0, 'YXZ');
+      }
+
+      // Auto RFID Turnstile Beep when walking through Badge-In lane!
+      if (rfidAutoCooldown > 0) rfidAutoCooldown -= dt;
+      if (carlHoseCooldown > 0) carlHoseCooldown -= dt;
+      const activePos = camModeIdx === 2 ? dronePos : me ? me.anchor.position : fpPos;
+      if (rfidAutoCooldown <= 0 && Math.hypot(activePos.x - -1.85, activePos.z - 17.50) < 0.95) {
+        rfidAutoCooldown = 9.0;
+        world.triggerRfidBadgeIn();
+      }
+
+      // Update Contextual [E] Prompt (Hotspot or Nearby Cast Handshake!)
+      currentHotspot = world.findNearestHotspot(activePos);
+      nearestPartner = null;
+      if (me && camModeIdx !== 2) {
+        let bestD = 1.95;
+        for (const other of castMgr.cast) {
+          if (other.id === me.id || other.activeHandshake) continue;
+          const d = Math.hypot(other.anchor.position.x - activePos.x, other.anchor.position.z - activePos.z);
+          if (d < bestD) {
+            bestD = d;
+            nearestPartner = { char: other, dist: d };
+          }
+        }
+      }
+      const promptEl = document.getElementById('context-prompt');
+      if (nearestPartner && (!currentHotspot || nearestPartner.dist < 1.45)) {
+        promptEl.textContent = `[E] Shake Hands with ${nearestPartner.char.def.shortName}  •  Keys [1–5] Pick Style`;
+        promptEl.classList.remove('hidden');
+      } else if (currentHotspot && camModeIdx !== 2) {
+        promptEl.textContent = currentHotspot.prompt;
+        promptEl.classList.remove('hidden');
+      } else {
+        promptEl.classList.add('hidden');
+      }
+
+      // Physical Camera Trauma Spring Recoil (14Hz pitch/roll + FOV punch) + Sprint FOV Push (52 -> 57 deg) + Deakins 2-Harmonic Breathing!
+      if (cameraTrauma > 0) {
+        cameraTrauma = Math.max(0, cameraTrauma - dt * 1.85);
+        cameraTraumaClock += dt;
+      }
+      if (anamorphicFlashTimer > 0) {
+        anamorphicFlashTimer = Math.max(0, anamorphicFlashTimer - dt);
+      }
+      const anamorphicEnv = anamorphicFlashTimer / 0.19;
+      if (anamorphicStreakEl) {
+        anamorphicStreakEl.style.opacity = anamorphicEnv > 0 ? Math.min(1, anamorphicEnv * 1.15).toFixed(3) : '0';
+      }
+      bloomPass.strength = 0.26 + anamorphicEnv * 0.48;
+
+      const traumaEnv = cameraTrauma * cameraTrauma;
+      const shakePitch = traumaEnv * 0.032 * Math.sin(cameraTraumaClock * Math.PI * 2 * 14.0);
+      const shakeRoll = traumaEnv * 0.026 * Math.cos(cameraTraumaClock * Math.PI * 2 * 11.5);
+      const steadicamBreath = 0.0022 * Math.sin(elapsed * Math.PI * 2 * 0.65) + 0.0012 * Math.sin(elapsed * Math.PI * 2 * 1.4);
+      camera.rotation.x += shakePitch + steadicamBreath;
+      camera.rotation.z += shakeRoll;
+
+      const isMovingAny = Math.abs(moveFwd) > 0 || Math.abs(moveRight) > 0;
+      const targetFov = (sprint && isMovingAny ? 57.0 : 52.0) + traumaEnv * 3.5;
+      if (Math.abs(camera.fov - targetFov) > 0.02) {
+        camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 9.5);
+        camera.updateProjectionMatrix();
+      }
+
+      // WDI Spatial Color Scripting & "The Dook" Transition Portal Atmosphere Update!
+      world.updateZoneAtmosphere(dt, camera.position, anamorphicEnv * 0.28);
+
+      // Update 3D Spatial WebAudio Listener & Acoustic Occlusion HUD
+      camera.getWorldDirection(_camFwd);
+      audio.updateListener(camera.position, _camFwd, _camUp, world.officeDoorOpen, elapsed);
+      const ac = audio.getAcousticState();
+      const acEl = document.getElementById('hud-acoustics');
+      acEl.textContent = ac.zoneLabel;
+      acEl.className = `val ${ac.insideOffice ? 'gold' : 'mint'}`;
+
+      // Update Foreman Mustache HUD Meter
+      const foreman = castMgr.getCharacter('foreman');
+      if (foreman) {
+        document.getElementById('hud-mustache-val').textContent = `${foreman.mustacheScale.toFixed(2)}x`;
+      }
+    }
+
+    function updateOverheadSpeechBubbles() {
+      if (!castMgr) return;
+      for (const c of castMgr.cast) {
+        let el = speechDomPool.get(c.id);
+        if (c.speechTimer <= 0 || !c.speechText) {
+          if (el) el.style.display = 'none';
+          continue;
+        }
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'speech-bubble';
+          speechLayerEl.appendChild(el);
+          speechDomPool.set(c.id, el);
+        }
+        _projVec.set(
+          c.anchor.position.x,
+          (0.66 + (c.id === 'anty' ? 0.18 : 0)) * c.J._scale,
+          c.anchor.position.z
+        );
+        _projVec.project(camera);
+        if (_projVec.z > 1 || _projVec.z < -1) {
+          el.style.display = 'none';
+          continue;
+        }
+        const sx = (_projVec.x * 0.5 + 0.5) * window.innerWidth;
+        const sy = (-_projVec.y * 0.5 + 0.5) * window.innerHeight;
+        if (sx < -60 || sx > window.innerWidth + 60 || sy < 30 || sy > window.innerHeight - 30) {
+          el.style.display = 'none';
+          continue;
+        }
+        el.style.display = 'block';
+        el.style.left = `${sx.toFixed(1)}px`;
+        el.style.top = `${sy.toFixed(1)}px`;
+        el.style.borderColor = c.def.color;
+        el.innerHTML = `<span class="spk" style="color:${c.def.color}">${c.def.shortName}</span>${c.speechText}`;
+      }
+    }
+
+    // --- 6. BOOTSTRAP & 60FPS MAIN LOOP ---
+    async function boot() {
+      bootStatus.textContent = 'Loading Bay 02 Studio Architecture & Giant Bolt Carrier (.glb)...';
+      const sharedTex = await world.init((prog) => {
+        bootBar.style.width = `${Math.round(20 + prog * 60)}%`;
+      });
+
+      bootBar.style.width = '88%';
+      bootStatus.textContent = 'Spawning 10 Articulated Cast Rigs & 5-Type Handshake Solver...';
+
+      castMgr = new CastManager(scene, sharedTex);
+      handshakeMgr = new HandshakeManager(
+        scene,
+        (hsCount, workDone) => {
+          document.getElementById('hud-handshakes').textContent = hsCount.toLocaleString('en-US');
+          world.updateLedCounter(hsCount, workDone);
+        },
+        (amt, anamorphicArc) => addCameraTrauma(amt, anamorphicArc)
+      );
+
+      cutawayLab = new CutawayPhysicsLab(
+        document.getElementById('cutaway-modal'),
+        document.getElementById('cutaway-canvas'),
+        audio
+      );
+
+      brainMap = new BrainMapController({
+        modalEl: document.getElementById('brain-modal'),
+        brainCanvas: document.getElementById('brain-canvas'),
+        miniCanvas: document.getElementById('minimap-canvas'),
+        castListEl: document.getElementById('brain-cast-list'),
+        landmarkListEl: document.getElementById('brain-landmark-list'),
+        inspectorEl: document.getElementById('brain-inspector'),
+        castMgr,
+        onPossess: (id) => possessCharacter(id, true),
+        onFastTravel: (lm) => fastTravelToLandmark(lm),
+        onDispatch: (id, tx, tz, pid) => {
+          const safe = world.resolveCollisionXZ(tx, tz, 0.28, true);
+          castMgr.dispatchCharacter(id, safe.x, safe.z, pid);
+        },
+        onOpenAzModal: () => openAzModal(),
+        onShaveMustache: () => {
+          const mPos = castMgr.shaveForemanMustache();
+          if (mPos) audio.playMustacheShave(mPos);
+        },
+      });
+
+      initAzModal();
+      initHudButtons();
+      possessCharacter('carl', false);
+      { const mv = await import('./js/motion_v7.js'); window.__propObstacles = mv.registerPropObstacles(scene, THREE); }
+
+      if (TEASER_MODE) {
+        composer.setSize(1080, 1920);
+        if (TEASER_PARAMS.has('lab')) {
+          const { MotionLab } = await import('./js/motion_lab.js');
+          teaser = new MotionLab({ scene, camera, renderer, world, castMgr, audio, handshakeMgr });
+        } else {
+        const { TeaserDirector } = await import('./js/teaser_director.js');
+        const cueData = await (await fetch('./js/teaser_cues.json')).json();
+        teaser = new TeaserDirector({ scene, camera, renderer, world, castMgr, audio, cueData, params: TEASER_PARAMS });
+        }
+      }
+
+      // Ambient proximity banter every ~9 seconds so Bay 02 feels alive!
+      window.setInterval(() => {
+        if (!castMgr) return;
+        const pick = castMgr.cast[Math.floor(Math.random() * castMgr.cast.length)];
+        if (!TEASER_MODE && pick && pick.speechTimer <= 0) {
+          castMgr.triggerSpeech(pick, null, 3.6);
+        }
+      }, 8500);
+
+      bootBar.style.width = '100%';
+      bootStatus.textContent = 'Welcome to Speed-Tac Bay 02 — Paulden, AZ 86334!';
+      window.setTimeout(() => {
+        bootOverlay.classList.add('fade-out');
+        if (TEASER_MODE) return;
+        showToast(
+          'WELCOME TO BAY 02 (PAULDEN, AZ 86334)',
+          'Walk with WASD/Arrows • Drag to orbit • Press [E] to interact • Press [1–5] for all 5 3D Handshakes • Press [M] to open THE BRAIN Tactical Map & possess/dispatch all 10 cast members!',
+          7500
+        );
+      }, 280);
+
+      const clock = new THREE.Clock();
+      let elapsed = 0;
+      let accDt = 0;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const rdt = Math.min(0.05, clock.getDelta());
+        if (window.__manualFrames) return;
+
+        if (!TEASER_MODE && !AUDIT_MODE) {
+          // Tab-hidden: zero GPU draw/postprocessing work to keep Mac thermals cool
+          if (document.hidden) return;
+          thermalState.idleSec += rdt;
+          thermalState.ecoIdle = thermalState.idleSec > 45.0;
+          const capFps = (thermalState.ecoIdle || thermalState.mode === 'Eco') ? 22 : 0;
+          if (capFps > 0) {
+            accDt += rdt;
+            if (accDt < 1 / capFps) return;
+            const stepDt = Math.min(0.05, accDt);
+            accDt = 0;
+            thermalState._frames++;
+            thermalState._acc += stepDt;
+            frame(stepDt);
+          } else {
+            thermalState._frames++;
+            thermalState._acc += rdt;
+            frame(rdt);
+          }
+          if (thermalState._acc >= 1.0) {
+            thermalState.fps = thermalState._frames / thermalState._acc;
+            thermalState._frames = 0;
+            thermalState._acc = 0;
+            const tLbl = document.getElementById('lbl-thermal-mode');
+            if (tLbl) {
+              tLbl.textContent = `${Math.round(thermalState.fps)} FPS • ${thermalState.ecoIdle ? 'Eco-Idle' : thermalState.mode}`;
+            }
+          }
+          return;
+        }
+        frame(rdt);
+      }
+      window.__frame = (dt) => frame(dt);
+      function frame(dt) {
+        elapsed += dt;
+
+        if (teaser) teaser.update(dt, elapsed);
+        else if (!window.__auditCameraOverride) updatePlayerAndCamera(dt, elapsed);
+        world.update(dt, elapsed, camera.position.y, audio.vuLevels);
+        castMgr.update(
+          dt,
+          elapsed,
+          teaser || camModeIdx === 2 ? null : possessedId,
+          (x, z, r, ignDoor) => world.resolveCollisionXZ(x, z, r, ignDoor),
+          handshakeMgr,
+          audio,
+          world
+        );
+        handshakeMgr.update(dt, elapsed);
+        cutawayLab.update(dt, elapsed);
+
+        const me = castMgr.getCharacter(possessedId);
+        const mapPos = camModeIdx === 2 ? dronePos : me ? me.anchor.position : fpPos;
+        brainMap.update(elapsed, mapPos, camYaw, possessedId);
+        updateOverheadSpeechBubbles();
+
+        if (window.__skipRender) return;
+        composer.render();
+        if (teaser) teaser.composite();
+      }
+      animate();
+      if (AUDIT_MODE) {
+        const { runV8AuditProbe } = await import('./js/v8_audit_probe.js');
+        await runV8AuditProbe({
+          THREE, scene, camera, renderer, composer, bloomPass, world, castMgr, handshakeMgr, audio,
+          params: TEASER_PARAMS, teaser,
+          setPossessed: (id) => possessCharacter(id, false),
+          triggerJump: () => {
+            if (jumpY <= 0.001) {
+              jumpVy = 3.1;
+              const meJ = castMgr && castMgr.getCharacter(possessedId);
+              if (meJ) triggerSquash(meJ, 0.13);
+            }
+          },
+        });
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

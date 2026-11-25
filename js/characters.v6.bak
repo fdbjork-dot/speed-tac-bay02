@@ -1,0 +1,1957 @@
+// Speed-Tac Bay 02 Interactive World — 10 Articulated Playable & Possessable Robot Cast Members
+// Features: Domed Hardhats + Chin-Straps, Swinging Lanyard ID Badges, 4 Eyewear Styles,
+// Foreman's Live-Growing Walrus Handlebar Mustache (+ Shave Gag!), Articulated Fingers,
+// Zero-Slide Analytical 2-Link Leg IK (grounded strictly at Y = 0.000m!), and GTA 6 Autonomous Routines.
+
+import * as THREE from '../vendor/three.module.js';
+
+export const CAST_MANIFEST = [
+  {
+    id: 'foreman',
+    name: 'The Foreman',
+    shortName: 'Foreman',
+    role: 'Bay 02 Boss & Master Tinkerer',
+    strikes: '0 (Boss)',
+    color: '#f5b400',
+    glove: 'rubber_yellow',
+    eyeColor: 'amber',
+    hat: 'hardhat_yellow',
+    eyewear: 'none',
+    archetype: 'foreman',
+    scale: 1.0,
+    height: 1.02,
+    stocky: 1.18,
+    home: { x: 7.35, z: 4.72, heading: 0.12 },
+    defaultHandshake: 1,
+    quotes: [
+      'FORTY-TWO STRIKES, CARL?! Flat carriers drag the 30th round—not this conveyor!',
+      'Put it there, kid! Firm Golden-Gloves builder grip builds shop character!',
+      'U.S. Patent 11,204,208 B1—twin relief pockets. Independent Paulden metalcraft!',
+      'Shave that damn mustache?! This handlebar is pure Tony Bjork custom-chopper heritage!',
+    ],
+  },
+  {
+    id: 'carl',
+    name: 'Carl',
+    shortName: 'Carl',
+    role: 'Chief Incident Officer (42 Strikes)',
+    strikes: '42 (43 Pending?)',
+    color: '#3c96f5',
+    glove: 'blue',
+    eyeColor: 'amber',
+    hat: 'cap_blue',
+    eyewear: 'none',
+    archetype: 'carl',
+    scale: 1.0,
+    height: 0.92,
+    stocky: 0.92,
+    home: { x: 5.35, z: 11.25, heading: -2.5216 },
+    defaultHandshake: 4,
+    quotes: [
+      'PJ says engage my scapular stabilizers and cup my metacarpal arch... am I doing it?!',
+      "Hey, my tool cart wheel is still propped on SLAM Magazine—and it's wobbling!",
+      'Tip 4: Do NOT accept compulsive handshakes... wait, is Boss offering his hand?!',
+      'Dreaming of a smooth 30-round closed-bolt click without palm bruises!',
+    ],
+  },
+  {
+    id: 'pj_wawa',
+    name: 'Patrick "PJ-WA-WA" Wounded Arrow',
+    shortName: 'PJ Wounded Arrow',
+    role: 'QA, Workflow Clarity & Kinesiology (ISU Redbirds)',
+    strikes: '0 (Spotless)',
+    color: '#ef3340',
+    glove: 'crimson',
+    eyeColor: 'cyan',
+    hat: 'hardhat_crimson',
+    eyewear: 'wrap_safety',
+    archetype: 'pj_wawa',
+    scale: 1.0,
+    height: 1.04,
+    stocky: 1.02,
+    home: { x: 6.45, z: 11.08, heading: 0.0 },
+    defaultHandshake: 2,
+    quotes: [
+      'Carl, engage your scapular stabilizers—your metacarpal palm arch is completely flat!',
+      'Illinois State Kinesiology rule #1: forearm supination, staggered finger cascade, zero friction!',
+      "Redbird crimson & chrome, every wrench torqued to spec—while Carl's cart sits on SLAM Magazine.",
+      'Workflow clarity beats blind compulsion every shift. Watch the 7-step biomechanic dap!',
+    ],
+  },
+  {
+    id: 'athena',
+    name: 'Athena ("Ask Athena")',
+    shortName: 'Athena',
+    role: 'Junior Prodigy • Evidence-First Engineer',
+    strikes: '0 (Prodigy)',
+    color: '#38d6f5',
+    glove: 'cyan',
+    eyeColor: 'cyan',
+    hat: 'none',
+    eyewear: 'smart',
+    archetype: 'athena',
+    scale: 0.82,
+    height: 0.86,
+    stocky: 0.84,
+    home: { x: 9.78, z: 2.38, heading: 1.15 },
+    defaultHandshake: 3,
+    quotes: [
+      "Wait—why didn't they just cut two relief pockets from the beginning instead of hitting it?",
+      'Ask Athena plan: flat steel has 0.00 mm clearance; U.S. Pat. 11,204,208 B1 gives +2.60 mm. Everything else is noise.',
+      'All thirty rounds seat on a closed bolt with one finger—check the evidence in the Cutaway Lab!',
+      'Boss, seriously—shave that damn mustache before it obscures the optical caliper!',
+    ],
+  },
+  {
+    id: 'dot',
+    name: 'Dot',
+    shortName: 'Dot',
+    role: 'Lead Line Mechanic & "10 Tips" Coach',
+    strikes: '0 (Coach)',
+    color: '#f05aa0',
+    glove: 'magenta',
+    eyeColor: 'pink',
+    hat: 'goggle_band',
+    eyewear: 'goggles',
+    archetype: 'dot',
+    scale: 1.0,
+    height: 0.96,
+    stocky: 0.92,
+    home: { x: 4.38, z: 11.82, heading: 1.95 },
+    defaultHandshake: 3,
+    quotes: [
+      'Tip 1: Remember to breathe. Tip 4: Do NOT accept compulsive handshakes, Carl.',
+      'At least this shop has an acoustic glass window for introspection... and muffling.',
+      'Shave that damn mustache, Boss—it grew three inches since morning shift!',
+    ],
+  },
+  {
+    id: 'anty',
+    name: 'Anty ("Mr. Anticipation")',
+    shortName: 'Anty',
+    role: 'Quality Delay Assurance (...)',
+    strikes: 'Pending...',
+    color: '#4deeea',
+    glove: 'gold',
+    eyeColor: 'cyan',
+    hat: 'none',
+    eyewear: 'monocle',
+    archetype: 'anty',
+    scale: 1.0,
+    height: 1.18,
+    stocky: 0.82,
+    home: { x: 1.95, z: 9.95, heading: -1.95 },
+    defaultHandshake: 3,
+    quotes: [
+      'Hold everything... *pneumatic inhale* ... wait for it...',
+      'What is rushed under compulsion is done blindly... therefore I pause... indefinitely.',
+      'I had an extraordinary observation regarding... never mind. This saddens me.',
+    ],
+  },
+  {
+    id: 'instructor',
+    name: 'The Instructor',
+    shortName: 'Instructor',
+    role: '1-158th Prescott NCO • Xenophon & Kinematics',
+    strikes: '0 (Deciphering)',
+    color: '#7aa2f7',
+    glove: 'navy',
+    eyeColor: 'amber',
+    hat: 'hardhat_navy',
+    eyewear: 'smart',
+    archetype: 'instructor',
+    scale: 1.0,
+    height: 1.08,
+    stocky: 1.02,
+    home: { x: 10.28, z: 1.58, heading: -1.95 },
+    defaultHandshake: 1,
+    quotes: [
+      'Xenophon wrote that what is done under compulsion is done blindly—like downloading to 28 rounds because a magazine told you to.',
+      'This saddens me. At least Bay 02 has a vending machine for introspection.',
+      "Some stories are true, some are false—that's why I see the mic, because it's my job to decipher. Observe U.S. Pat. 11,204,208 B1.",
+      'Never hammer a 30-round magazine on a closed bolt. Twin -2.60 mm relief cuts replace brute compulsion with geometry.',
+    ],
+  },
+  {
+    id: 'volt',
+    name: 'Volt',
+    shortName: 'Volt',
+    role: '120 BPM Boombox Electro-Boogaloo Bot',
+    strikes: '0 (Grooving)',
+    color: '#4ef08a',
+    glove: 'green',
+    eyeColor: 'green',
+    hat: 'none',
+    eyewear: 'none',
+    archetype: 'volt',
+    scale: 1.0,
+    height: 0.88,
+    stocky: 1.14,
+    home: { x: -2.35, z: 11.35, heading: -0.45 },
+    defaultHandshake: 2,
+    quotes: [
+      '120 BPM air-compressor electro-funk! Bay 02 never walks—we pop-lock!',
+      'Zero conveyor parts touched today because the groove is undefeated!',
+      'Tip 10 in Dot’s manual: When in doubt, let Volt dance!',
+    ],
+  },
+  {
+    id: 'tiny',
+    name: 'Tiny',
+    shortName: 'Tiny (1.8x)',
+    role: '1.8x Scale Gentle Giant Heavy Lifter',
+    strikes: '1 Bent Wrench',
+    color: '#fbbf24',
+    glove: 'yellow',
+    eyeColor: 'amber',
+    hat: 'hardhat_yellow',
+    eyewear: 'none',
+    archetype: 'tiny',
+    scale: 1.8,
+    height: 1.0,
+    stocky: 1.12,
+    home: { x: 11.10, z: 10.20, heading: 0.15 },
+    defaultHandshake: 5,
+    quotes: [
+      'Tiny practices ultra-delicate two-fingertip handshakes. Very gentle!',
+      'Only accidentally bent one steel wrench today. Big improvement!',
+      'Tiny likes Speed-Tac relief pockets—one gentle pinky seats all thirty!',
+    ],
+  },
+  {
+    id: 'lou',
+    name: 'Lou & Shift Crew',
+    shortName: 'Lou & Crew',
+    role: 'RFID Turnstile & SLAM Magazine Roasters',
+    strikes: '0 (Veterans)',
+    color: '#fb923c',
+    glove: 'accent',
+    eyeColor: 'amber',
+    hat: 'hardhat_yellow',
+    eyewear: 'wrap_safety',
+    archetype: 'lou',
+    scale: 1.0,
+    height: 1.0,
+    stocky: 1.04,
+    home: { x: 6.82, z: -0.15, heading: 0.95 },
+    defaultHandshake: 2,
+    quotes: [
+      '"Why 29 rounds is plenty"?! Even the break-room toaster clowns on SLAM Magazine!',
+      'Look at the red-marker roast on the noticeboard—"SKILL ISSUE!" Hahaha!',
+      'Shift crew badged in GREEN on the RFID pedestal, coffee hot, SLAM in the trash!',
+    ],
+  },
+];
+
+// Supporting ambient background crew (non-possessable extras that make Bay 02 teem with GTA-level life!)
+const SUPPORT_CREW_DEFS = [
+  {
+    id: 'gus_dap',
+    name: 'Gus (PJ Dap Partner)',
+    glove: 'accent',
+    eyeColor: 'amber',
+    hat: 'hardhat_yellow',
+    eyewear: 'wrap_safety',
+    archetype: 'support_gus',
+    scale: 1.0,
+    height: 1.0,
+    stocky: 1.0,
+    home: { x: 6.45, z: 11.62, heading: Math.PI },
+  },
+  {
+    id: 'otis_wait',
+    name: 'Otis (Waiting on Anty)',
+    glove: 'blue',
+    eyeColor: 'amber',
+    hat: 'hardhat_yellow',
+    eyewear: 'none',
+    archetype: 'support_otis',
+    scale: 1.0,
+    height: 0.98,
+    stocky: 1.02,
+    home: { x: 1.18, z: 10.35, heading: 1.18 },
+  },
+  {
+    id: 'rookie_rfid',
+    name: 'Shift Tech (RFID Turnstile)',
+    glove: 'green',
+    eyeColor: 'cyan',
+    hat: 'hardhat_yellow',
+    eyewear: 'smart',
+    archetype: 'support_rfid',
+    scale: 1.0,
+    height: 0.98,
+    stocky: 0.96,
+    home: { x: -1.28, z: 17.72, heading: -1.35 },
+  },
+];
+
+// GTA 6 Autonomous Multi-Waypoint Shop Patrols for unpossessed cast members!
+const AUTONOMOUS_PATROLS = {
+  lou: [
+    { x: 6.82, z: -0.15, pause: 4.5, heading: 0.95 },  // Break Corner SLAM Trash Bin Roast
+    { x: 3.85, z: 0.55, pause: 3.5, heading: Math.PI }, // Inspecting War-Room AZ 86334 Lightbox
+    { x: -2.10, z: 9.85, pause: 2.8, heading: -1.2 },   // Checking Volt & Pit Overlook
+    { x: -1.15, z: 16.95, pause: 3.6, heading: -1.4 },  // Entrance GREEN RFID Turnstile check
+    { x: 6.15, z: 12.10, pause: 3.2, heading: 0.25 },   // Laughing at Carl's SLAM-shimmed cart
+  ],
+  dot: [
+    { x: 4.38, z: 11.82, pause: 5.0, heading: 1.95 },   // Coaching Carl by OSHA 404-B
+    { x: 4.72, z: 8.15, pause: 3.2, heading: 2.85 },    // Inspecting Green Mile air hose
+    { x: 4.48, z: 5.55, pause: 4.4, heading: 1.55 },    // Peering into Foreman's Office window
+  ],
+  athena: [
+    { x: 9.78, z: 2.38, pause: 5.5, heading: 1.15 },    // Patent 11,204,208 B1 Classroom
+    { x: 0.45, z: 9.65, pause: 4.2, heading: Math.PI }, // Central Pit Dual-Relief Cutaway Pedestal
+    { x: -5.20, z: 3.30, pause: 3.8, heading: -1.57 },  // Conveyor QC Green Laser Scanner Arch
+  ],
+};
+
+function createRigMaterials(textures = {}) {
+  const mat = (color, rough = 0.4, metal = 0.1, emit = null, emitInt = 0.0, opts = {}) => {
+    const p = {
+      color: new THREE.Color(color),
+      roughness: rough,
+      metalness: metal,
+      ...opts,
+    };
+    if (emit) {
+      p.emissive = new THREE.Color(emit);
+      p.emissiveIntensity = emitInt;
+    }
+    return new THREE.MeshStandardMaterial(p);
+  };
+
+  const badgeMat = textures.idBadge
+    ? new THREE.MeshStandardMaterial({
+        map: textures.idBadge,
+        roughness: 0.25,
+        metalness: 0.08,
+      })
+    : mat(0xf1f5f9, 0.25, 0.08);
+
+  const clipPaperMat = textures.tenTips
+    ? new THREE.MeshStandardMaterial({
+        map: textures.tenTips,
+        roughness: 0.65,
+        metalness: 0.0,
+      })
+    : mat(0xf4f1e6, 0.7, 0.0);
+
+  return {
+    shell: mat(0xb8c0cc, 0.28, 0.82),
+    dark: mat(0x161920, 0.44, 0.52),
+    chrome: mat(0xe2e8f0, 0.12, 0.96),
+    brass: mat(0xe0a838, 0.24, 0.90),
+    gold: mat(0xebba42, 0.22, 0.92),
+    visor: mat(0x05080f, 0.08, 0.78, 0x0c2438, 0.25),
+    chinstrap: mat(0x111317, 0.7, 0.05),
+    lanyard: mat(0xdc2626, 0.55, 0.0),
+    badgeCard: badgeMat,
+    clipPaper: clipPaperMat,
+    mustache: mat(0xebe8df, 0.58, 0.06),
+    smoke: mat(0x94a3b8, 0.85, 0.0, null, 0, { transparent: true, opacity: 0.55 }),
+
+    // Gloves & Hats
+    rubber_yellow: mat(0xf5b00a, 0.46, 0.04, 0xf5b00a, 0.08),
+    yellow: mat(0xf5b00a, 0.32, 0.12, 0xf5b00a, 0.10),
+    crimson: mat(0xd91824, 0.16, 0.32, 0xd91824, 0.12),
+    blue: mat(0x2563eb, 0.34, 0.12, 0x2563eb, 0.12),
+    cyan: mat(0x22d3ee, 0.26, 0.22, 0x22d3ee, 0.22),
+    magenta: mat(0xec4899, 0.34, 0.12, 0xec4899, 0.18),
+    green: mat(0x22c55e, 0.32, 0.12, 0x22c55e, 0.18),
+    navy: mat(0x1e3a8a, 0.34, 0.24, 0x1e40af, 0.10),
+    accent: mat(0xf95d32, 0.34, 0.10, 0xf95d32, 0.14),
+
+    // Emissive eyes & beacons
+    eye_amber: mat(0xffe0a3, 0.15, 0.0, 0xffc864, 2.4),
+    eye_cyan: mat(0x67e8f9, 0.15, 0.0, 0x22d3ee, 2.6),
+    eye_green: mat(0x86efac, 0.15, 0.0, 0x34d399, 2.6),
+    eye_pink: mat(0xf9a8d4, 0.15, 0.0, 0xf472b6, 2.5),
+    carl_beacon: mat(0xff8811, 0.15, 0.1, 0xff6b00, 3.8),
+    anty_dot: mat(0x67e8f9, 0.12, 0.0, 0x22d3ee, 3.6),
+    volt_spark: mat(0x6ee7b7, 0.10, 0.0, 0x34d399, 4.2),
+
+    // Translucent lenses & Ask Athena evidence-first glowing holographic screen
+    glass_amber: mat(0xf59e0b, 0.10, 0.15, 0xf59e0b, 0.12, { transparent: true, opacity: 0.58 }),
+    glass_cyan: mat(0x38bdf8, 0.08, 0.15, 0x38bdf8, 0.18, { transparent: true, opacity: 0.52 }),
+    askAthenaScreen: createAskAthenaScreenMaterial(),
+  };
+}
+
+function createAskAthenaScreenMaterial() {
+  if (typeof document === 'undefined') {
+    return new THREE.MeshStandardMaterial({
+      color: 0x67e8f9,
+      emissive: 0x22d3ee,
+      emissiveIntensity: 2.4,
+      roughness: 0.15,
+    });
+  }
+  const cv = document.createElement('canvas');
+  cv.width = 256;
+  cv.height = 192;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#061826';
+  ctx.fillRect(0, 0, 256, 192);
+  ctx.strokeStyle = '#38d6f5';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(8, 8, 240, 176);
+  ctx.fillStyle = '#67e8f9';
+  ctx.font = 'bold 22px sans-serif';
+  ctx.fillText('ASK ATHENA', 22, 40);
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.fillText('EVIDENCE FIRST', 22, 66);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.font = '14px monospace';
+  ctx.fillText('PAT. 11,204,208 B1', 22, 96);
+  ctx.fillStyle = '#34d399';
+  ctx.fillText('+2.60mm TWIN RELIEF', 22, 120);
+  ctx.beginPath();
+  ctx.strokeStyle = '#38d6f5';
+  ctx.lineWidth = 4;
+  ctx.arc(82, 156, 22, Math.PI, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(166, 156, 22, Math.PI, 0);
+  ctx.stroke();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({
+    map: tex,
+    emissive: new THREE.Color(0x22d3ee),
+    emissiveMap: tex,
+    emissiveIntensity: 1.85,
+    roughness: 0.14,
+    metalness: 0.10,
+  });
+}
+
+// Shared primitive geometries for crisp 60fps instancing efficiency
+const UNIT_BOX = new THREE.BoxGeometry(1, 1, 1);
+const UNIT_CYL = new THREE.CylinderGeometry(1, 1, 1, 14);
+const UNIT_TAPER_CYL = new THREE.CylinderGeometry(0.46, 1.0, 1, 14);
+const UNIT_DOME = new THREE.SphereGeometry(1, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.52);
+const UNIT_SPH = new THREE.SphereGeometry(1, 12, 10);
+
+function addBox(parent, sx, sy, sz, lx, ly, lz, mat, rx = 0, ry = 0, rz = 0) {
+  const m = new THREE.Mesh(UNIT_BOX, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.set(lx, ly, lz);
+  if (rx || ry || rz) m.rotation.set(rx, ry, rz);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+
+function addCyl(parent, rad, h, lx, ly, lz, mat, rx = 0, ry = 0, rz = 0) {
+  const m = new THREE.Mesh(UNIT_CYL, mat);
+  m.scale.set(rad, h, rad);
+  m.position.set(lx, ly, lz);
+  if (rx || ry || rz) m.rotation.set(rx, ry, rz);
+  m.castShadow = true;
+  parent.add(m);
+  return m;
+}
+
+function addSph(parent, rad, lx, ly, lz, mat) {
+  const m = new THREE.Mesh(UNIT_SPH, mat);
+  m.scale.setScalar(rad);
+  m.position.set(lx, ly, lz);
+  parent.add(m);
+  return m;
+}
+
+export function solve2LinkLegIK(TH, SH, dz, dy) {
+  const maxLen = TH + SH - 1e-4;
+  let d = Math.hypot(dz, dy);
+  if (d > maxLen) {
+    const sc = maxLen / Math.max(d, 1e-6);
+    dz *= sc;
+    dy *= sc;
+    d = maxLen;
+  }
+  const cosB = Math.max(-1, Math.min(1, (d * d - TH * TH - SH * SH) / Math.max(1e-8, 2 * TH * SH)));
+  const beta = Math.acos(cosB);
+  const A = TH + SH * Math.cos(beta);
+  const B = SH * Math.sin(beta);
+  const alpha = Math.atan2(-dz, -dy) - Math.atan2(B, A);
+  return [alpha, beta];
+}
+
+export function buildArticulatedCharacter(def, M) {
+  const J = {};
+  const anchor = new THREE.Group();
+  anchor.name = `${def.id}_ANCHOR`;
+  anchor.position.set(def.home.x, 0.0, def.home.z);
+  anchor.rotation.set(0, def.home.heading || 0, 0);
+
+  const scaleGroup = new THREE.Group();
+  scaleGroup.scale.setScalar(def.scale || 1.0);
+  anchor.add(scaleGroup);
+
+  const root = new THREE.Group();
+  scaleGroup.add(root);
+  J.root = root;
+
+  const height = def.height || 1.0;
+  const stocky = def.stocky || 1.0;
+  const gloveMat = M[def.glove] || M.accent;
+  const eyeMat = M[`eye_${def.eyeColor || 'amber'}`] || M.eye_amber;
+  const handScale = def.archetype === 'foreman' ? 1.25 : 1.0;
+
+  const LEG = 0.20 * height;
+  const TH = LEG * 0.5;
+  const SH = LEG * 0.5;
+  const UA = 0.098 * height;
+  const FA = 0.098 * height;
+  const bw = 0.16 * stocky;
+  const bh = 0.17 * height;
+  const bd = 0.11 * stocky;
+
+  const pelvis = new THREE.Group();
+  pelvis.position.set(0, LEG - 0.012 * height, 0);
+  root.add(pelvis);
+  J.pelvis = pelvis;
+  addBox(pelvis, bw * 0.9, 0.05, bd * 0.95, 0, 0.02, 0, M.dark);
+
+  const spine = new THREE.Group();
+  spine.position.set(0, 0.04, 0);
+  pelvis.add(spine);
+  J.spine = spine;
+
+  addBox(spine, bw, bh, bd, 0, bh * 0.5, 0, M.shell);
+  addBox(spine, bw + 0.012, 0.034, bd + 0.012, 0, bh * 0.62, 0, gloveMat);
+  addBox(spine, bw * 0.70, bh * 0.58, 0.034, 0, bh * 0.50, -bd * 0.5 - 0.016, M.dark);
+  for (const rx of [-bw * 0.36, bw * 0.36]) {
+    for (const ry of [bh * 0.22, bh * 0.82]) {
+      addCyl(spine, 0.0055, 0.008, rx, ry, bd * 0.5 + 0.003, M.brass, Math.PI * 0.5, 0, 0);
+    }
+  }
+
+  // Swinging Speed-Tac Neck Lanyard + ID Badge Card on every bot!
+  for (const [sx] of [[1], [-1]]) {
+    addBox(spine, 0.012, bh * 0.44, 0.008, sx * 0.022, bh * 0.80, bd * 0.5 + 0.006, M.lanyard, 0, 0, sx * 0.22);
+  }
+  const badgePivot = new THREE.Group();
+  badgePivot.position.set(0, bh * 0.58, bd * 0.5 + 0.014);
+  spine.add(badgePivot);
+  J.badgePivot = badgePivot;
+  addCyl(badgePivot, 0.007, 0.012, 0, -0.006, 0, M.chrome, Math.PI * 0.5, 0, 0);
+  addBox(badgePivot, 0.046, 0.064, 0.005, 0, -0.041, 0, M.badgeCard);
+
+  // Neck & Head
+  const neck = new THREE.Group();
+  neck.position.set(0, bh + 0.012, 0);
+  spine.add(neck);
+  J.neck = neck;
+  if (def.archetype === 'anty') {
+    addCyl(neck, 0.040, 0.046, 0, 0.02, 0, M.gold);
+    addBox(neck, 0.038, 0.058, 0.038, 0, 0.02, 0, M.dark);
+  } else {
+    addBox(neck, 0.05, 0.03, 0.05, 0, 0, 0, M.dark);
+  }
+
+  const head = new THREE.Group();
+  head.position.set(0, def.archetype === 'anty' ? 0.048 : 0.02, 0);
+  neck.add(head);
+  J.head = head;
+
+  const hw = 0.19, hh = 0.125, hd = 0.15;
+  addBox(head, hw, hh, hd, 0, hh * 0.5, 0, M.shell);
+  addBox(head, hw * 0.86, hh * 0.70, 0.012, 0, hh * 0.48, hd * 0.5 + 0.004, M.visor);
+
+  for (const [side, sx] of [['L', 0.043], ['R', -0.043]]) {
+    const ep = new THREE.Group();
+    ep.position.set(sx, hh * 0.52, hd * 0.5 + 0.012);
+    head.add(ep);
+    J[`eye${side}`] = ep;
+    addBox(ep, 0.040, 0.040, 0.008, 0, 0, 0, eyeMat);
+
+    const br = new THREE.Group();
+    br.position.set(sx, hh * 0.52 + 0.035, hd * 0.5 + 0.014);
+    head.add(br);
+    J[`brow${side}`] = br;
+    addBox(br, 0.054, 0.011, 0.008, 0, 0, 0, M.shell);
+  }
+
+  // Foreman's Iconic Sculpted Growing Tony Bjork / Paul Sr. Walrus Handlebar Mustache + Secondary Whip Tips!
+  if (def.archetype === 'foreman') {
+    const mRoot = new THREE.Group();
+    mRoot.position.set(0, hh * 0.24, hd * 0.5 + 0.017);
+    head.add(mRoot);
+    J.mustacheRoot = mRoot;
+
+    // Sculpted central philtrum bolster (organic ellipsoid, zero flat boxes!)
+    const centerBolster = new THREE.Mesh(UNIT_SPH, M.mustache);
+    centerBolster.scale.set(0.046, 0.022, 0.020);
+    centerBolster.position.set(0, 0.002, 0.005);
+    centerBolster.castShadow = true;
+    mRoot.add(centerBolster);
+
+    for (const [sideTag, sx] of [['L', 1], ['R', -1]]) {
+      // Swept primary handlebar lobe (tapered cylinder)
+      const midLobe = new THREE.Mesh(UNIT_TAPER_CYL, M.mustache);
+      midLobe.scale.set(0.020, 0.068, 0.017);
+      midLobe.position.set(sx * 0.052, -0.009, 0.003);
+      midLobe.rotation.set(0.08, -sx * 0.14, sx * 1.30);
+      midLobe.castShadow = true;
+      mRoot.add(midLobe);
+
+      // Outer downward walrus sweep
+      const outerSweep = new THREE.Mesh(UNIT_TAPER_CYL, M.mustache);
+      outerSweep.scale.set(0.016, 0.060, 0.014);
+      outerSweep.position.set(sx * 0.095, -0.032, -0.001);
+      outerSweep.rotation.set(0.10, -sx * 0.22, sx * 0.72);
+      outerSweep.castShadow = true;
+      mRoot.add(outerSweep);
+
+      // Hinged distal handlebar tip group for secondary angular whip/lag!
+      const tipPivot = new THREE.Group();
+      tipPivot.position.set(sx * 0.114, -0.054, -0.003);
+      mRoot.add(tipPivot);
+      J[`mustacheTip${sideTag}`] = tipPivot;
+
+      const dropTip = new THREE.Mesh(UNIT_TAPER_CYL, M.mustache);
+      dropTip.scale.set(0.012, 0.042, 0.011);
+      dropTip.position.set(sx * 0.010, -0.016, 0);
+      dropTip.rotation.set(0, 0, sx * 0.34);
+      dropTip.castShadow = true;
+      tipPivot.add(dropTip);
+
+      // Classic custom-chopper waxed handlebar tip curl
+      const waxCurl = new THREE.Mesh(UNIT_SPH, M.mustache);
+      waxCurl.scale.set(0.011, 0.009, 0.009);
+      waxCurl.position.set(sx * 0.024, -0.028, 0.003);
+      tipPivot.add(waxCurl);
+    }
+  }
+
+  // Volt Visor Sparks
+  if (def.archetype === 'volt') {
+    J.visorSparks = [
+      addBox(head, 0.024, 0.009, 0.018, 0.102, hh * 0.54, hd * 0.5 + 0.01, M.volt_spark, 0, 0, 0.48),
+      addBox(head, 0.024, 0.009, 0.018, -0.102, hh * 0.54, hd * 0.5 + 0.01, M.volt_spark, 0, 0, -0.48),
+    ];
+  }
+
+  // Hat & Sculpted Domed Hardhat + Chinstrap
+  const hatGroup = new THREE.Group();
+  hatGroup.position.set(0, hh, 0);
+  head.add(hatGroup);
+  J.hat = hatGroup;
+
+  if (def.hat && def.hat.startsWith('hardhat')) {
+    const hMat =
+      def.hat === 'hardhat_crimson' ? M.crimson : def.hat === 'hardhat_navy' ? M.navy : M.yellow;
+    const dome = new THREE.Mesh(UNIT_DOME, hMat);
+    dome.scale.set(hw * 0.56, 0.068, hd * 0.62);
+    dome.position.set(0, 0.004, 0);
+    dome.castShadow = true;
+    hatGroup.add(dome);
+    addBox(hatGroup, hw * 1.22, 0.013, hd * 1.44, 0, 0.005, 0.014, hMat);
+    addBox(hatGroup, 0.028, 0.020, hd * 0.94, 0, 0.064, 0, hMat);
+    // Nylon Safety Chinstrap + Chrome Buckle under jaw
+    for (const sx of [1, -1]) {
+      addBox(head, 0.010, 0.115, 0.013, sx * hw * 0.49, hh * 0.48, hd * 0.08, M.chinstrap, 0.24, 0, sx * 0.14);
+    }
+    addBox(head, hw * 0.94, 0.013, 0.017, 0, -0.004, hd * 0.18, M.chinstrap);
+    addBox(head, 0.028, 0.018, 0.022, hw * 0.24, 0.006, hd * 0.19, M.chrome);
+  } else if (def.hat === 'cap_blue') {
+    addBox(hatGroup, hw * 0.99, 0.042, hd * 1.02, 0, 0.020, 0, M.blue);
+    addBox(hatGroup, hw * 0.82, 0.011, 0.072, 0, 0.008, hd * 0.5 + 0.032, M.blue);
+    hatGroup.rotation.set(0.04, 0, -0.07);
+  }
+
+  // Eyewear Variety
+  const zEye = hd * 0.5 + 0.022;
+  const yEye = hh * 0.54;
+  if (def.eyewear === 'wrap_safety') {
+    addBox(head, hw * 0.94, 0.012, 0.016, 0, yEye + 0.023, zEye, M.dark);
+    addBox(head, hw * 0.90, 0.042, 0.007, 0, yEye + 0.002, zEye + 0.002, M.glass_amber);
+    for (const sx of [1, -1]) {
+      addBox(head, 0.010, 0.012, hd * 0.65, sx * hw * 0.48, yEye + 0.018, hd * 0.20, M.dark);
+    }
+  } else if (def.eyewear === 'smart') {
+    addBox(head, 0.026, 0.009, 0.010, 0, yEye + 0.010, zEye, M.dark);
+    for (const sx of [0.043, -0.043]) {
+      addBox(head, 0.058, 0.046, 0.010, sx, yEye, zEye, M.dark);
+      addBox(head, 0.048, 0.036, 0.012, sx, yEye, zEye + 0.001, M.glass_cyan);
+    }
+    for (const sx of [1, -1]) {
+      addBox(head, 0.008, 0.010, hd * 0.65, sx * hw * 0.49, yEye + 0.008, hd * 0.18, M.dark);
+    }
+    addBox(head, 0.011, 0.011, 0.013, -0.076, yEye + 0.016, zEye + 0.003, M.anty_dot);
+  } else if (def.eyewear === 'goggles') {
+    addBox(hatGroup, hw * 1.03, 0.018, hd * 1.03, 0, 0.012, 0, M.dark);
+    addCyl(hatGroup, 0.032, 0.018, 0.045, 0.012, hd * 0.5 + 0.012, M.eye_pink, Math.PI * 0.5, 0, 0);
+    addCyl(hatGroup, 0.032, 0.018, -0.045, 0.012, hd * 0.5 + 0.012, M.eye_pink, Math.PI * 0.5, 0, 0);
+  } else if (def.eyewear === 'monocle') {
+    addCyl(head, 0.030, 0.010, -0.043, yEye, zEye, M.gold, Math.PI * 0.5, 0, 0);
+    addCyl(head, 0.024, 0.012, -0.043, yEye, zEye, M.glass_cyan, Math.PI * 0.5, 0, 0);
+    addCyl(head, 0.003, 0.065, -0.072, yEye - 0.032, zEye - 0.004, M.gold, 0, 0, 0.20);
+  }
+
+  // Antennas, Beacons & Floating Ellipsis (...)
+  const ant = new THREE.Group();
+  ant.position.set(def.archetype === 'anty' ? 0 : 0.05, hh, -0.025);
+  head.add(ant);
+  J.antenna = ant;
+
+  if (def.archetype === 'dot') {
+    ant.position.set(0.06, hh, -0.02);
+    addBox(ant, 0.006, 0.11, 0.006, 0, 0.055, 0, M.dark);
+    addBox(ant, 0.018, 0.018, 0.018, 0, 0.11, 0, M.eye_pink);
+    const antR = new THREE.Group();
+    antR.position.set(-0.06, hh, -0.02);
+    head.add(antR);
+    addBox(antR, 0.006, 0.11, 0.006, 0, 0.055, 0, M.dark);
+    addBox(antR, 0.018, 0.018, 0.018, 0, 0.11, 0, M.eye_pink);
+  } else if (def.archetype === 'anty') {
+    addBox(ant, 0.008, 0.16, 0.008, 0, 0.08, 0, M.gold);
+    addSph(ant, 0.018, 0, 0.165, 0, M.anty_dot);
+    J.ellipsisDots = [0, 1, 2].map((di) =>
+      addSph(root, 0.022, -0.18 + di * 0.072, 0.76, 0.16, M.anty_dot)
+    );
+  } else if (def.archetype === 'carl') {
+    addBox(ant, 0.010, 0.085, 0.010, 0, 0.042, 0, M.dark);
+    J.carlBeaconMesh = addSph(ant, 0.022, 0, 0.095, 0, M.carl_beacon);
+    J.smokePuffs = [0, 1, 2, 3].map((si) => {
+      const sp = addSph(head, 0.032 + si * 0.008, 0, 0.22 + si * 0.06, 0, M.smoke);
+      sp.visible = false;
+      return sp;
+    });
+  } else {
+    addBox(ant, 0.009, 0.070, 0.009, 0, 0.035, 0, M.dark);
+    addSph(ant, 0.016, 0, 0.076, 0, gloveMat);
+  }
+
+  // Arms (with Hydraulic Pistons, Brass Rivets, Wrist, Palm & Articulated Fingers!) + Legs
+  for (const [side, sx] of [['L', 1], ['R', -1]]) {
+    const sh = new THREE.Group();
+    sh.position.set(sx * (bw * 0.5 + 0.022), bh * 0.84, 0);
+    spine.add(sh);
+    J[`shoulder${side}`] = sh;
+
+    addBox(sh, 0.048, 0.048, 0.052, 0, 0, 0, M.dark);
+    addCyl(sh, 0.026, 0.012, -sx * 0.024, 0, 0, M.chrome, 0, 0, Math.PI * 0.5);
+    addBox(sh, 0.036, UA, 0.042, 0, -UA * 0.5, 0, M.shell);
+    // Hydraulic cylinder on upper arm
+    addCyl(sh, 0.009, UA * 0.56, sx * 0.014, -UA * 0.45, -0.024, M.dark);
+    addCyl(sh, 0.005, UA * 0.48, sx * 0.014, -UA * 0.82, -0.024, M.chrome);
+
+    const el = new THREE.Group();
+    el.position.set(0, -UA, 0);
+    sh.add(el);
+    J[`elbow${side}`] = el;
+
+    addCyl(el, 0.011, 0.052, 0, 0, 0, M.chrome, 0, 0, Math.PI * 0.5);
+    addBox(el, 0.035, FA * 0.48, 0.041, 0, -FA * 0.24, 0, M.dark);
+
+    // Forearm Pronation / Supination Longitudinal Twist Joint (Arcane / Uncharted 4 biomechanics!)
+    const forearmTwist = new THREE.Group();
+    forearmTwist.position.set(0, -FA * 0.48, 0);
+    el.add(forearmTwist);
+    J[`forearmTwist${side}`] = forearmTwist;
+    addCyl(forearmTwist, 0.017, FA * 0.52, 0, -FA * 0.26, 0, def.archetype === 'pj_wawa' ? M.chrome : M.dark);
+
+    // Wrist Joint (Flexion/Extension Rx + Ulnar/Radial Deviation Rz)
+    const wrist = new THREE.Group();
+    wrist.position.set(0, -FA * 0.52, 0);
+    forearmTwist.add(wrist);
+    J[`wrist${side}`] = wrist;
+    addCyl(wrist, 0.021 * handScale, 0.016, 0, 0, 0, M.chrome);
+
+    // Radial/Central Palm + Hinged Ulnar Metacarpal Palm Arch Cup!
+    const palm = new THREE.Group();
+    palm.position.set(0, -0.015 * handScale, 0);
+    wrist.add(palm);
+    J[`palm${side}`] = palm;
+    addBox(palm, 0.043 * handScale, 0.036 * handScale, 0.030 * handScale, 0, -0.015 * handScale, 0.011 * handScale, gloveMat);
+
+    // Hinged Ulnar Metacarpal Arch (cups Ring + Pinky inward across hypothenar eminence!)
+    const metaArch = new THREE.Group();
+    metaArch.position.set(0, 0, -0.004 * handScale);
+    palm.add(metaArch);
+    J[`metacarpalArch${side}`] = metaArch;
+    addBox(metaArch, 0.041 * handScale, 0.035 * handScale, 0.024 * handScale, 0, -0.015 * handScale, -0.011 * handScale, gloveMat);
+
+    // 4 Articulated 2-Joint Digits: Index & Middle on Radial Palm; Ring & Pinky on Hinged Metacarpal Arch!
+    const digitSpecs = [
+      ['idx', palm, 0.019 * handScale, 1.00],
+      ['mid', palm, 0.006 * handScale, 1.06],
+      ['rng', metaArch, -0.004 * handScale, 0.98],
+      ['pnk', metaArch, -0.017 * handScale, 0.84],
+    ];
+    for (const [ftag, parentGrp, zOff, lenSc] of digitSpecs) {
+      const k1 = new THREE.Group();
+      k1.position.set(0, -0.033 * handScale, zOff);
+      parentGrp.add(k1);
+      J[`finger_${ftag}1_${side}`] = k1;
+      addBox(
+        k1,
+        0.011 * handScale,
+        0.021 * handScale * lenSc,
+        0.010 * handScale,
+        0,
+        -0.010 * handScale * lenSc,
+        0,
+        M.dark
+      );
+
+      const k2 = new THREE.Group();
+      k2.position.set(0, -0.020 * handScale * lenSc, 0);
+      k1.add(k2);
+      J[`finger_${ftag}2_${side}`] = k2;
+      addBox(
+        k2,
+        0.010 * handScale,
+        0.017 * handScale * lenSc,
+        0.009 * handScale,
+        0,
+        -0.008 * handScale * lenSc,
+        0,
+        gloveMat
+      );
+    }
+
+    const th1 = new THREE.Group();
+    th1.position.set(-sx * 0.024 * handScale, -0.012 * handScale, 0.021 * handScale);
+    th1.rotation.set(0.32, 0, -sx * 0.55);
+    palm.add(th1);
+    J[`thumb1_${side}`] = th1;
+    addBox(th1, 0.012 * handScale, 0.018 * handScale, 0.012 * handScale, 0, -0.009 * handScale, 0, M.dark);
+
+    const th2 = new THREE.Group();
+    th2.position.set(0, -0.016 * handScale, 0);
+    th1.add(th2);
+    J[`thumb2_${side}`] = th2;
+    addBox(th2, 0.011 * handScale, 0.014 * handScale, 0.011 * handScale, 0, -0.007 * handScale, 0, gloveMat);
+
+    // Legs (Hip -> Knee -> Foot, with sole strictly at local y = 0..0.026 so world sole = 0.000!)
+    const hp = new THREE.Group();
+    hp.position.set(sx * bw * 0.26, 0, 0);
+    pelvis.add(hp);
+    J[`hip${side}`] = hp;
+    addBox(hp, 0.046, TH, 0.052, 0, -TH * 0.5, 0, M.dark);
+    addCyl(hp, 0.009, TH * 0.55, sx * 0.014, -TH * 0.45, -0.024, M.dark);
+
+    const kn = new THREE.Group();
+    kn.position.set(0, -TH, 0);
+    hp.add(kn);
+    J[`knee${side}`] = kn;
+    addCyl(kn, 0.012, 0.054, 0, 0, 0, M.chrome, 0, 0, Math.PI * 0.5);
+    addBox(kn, 0.042, SH, 0.048, 0, -SH * 0.5, 0, M.shell);
+
+    const ft = new THREE.Group();
+    ft.position.set(0, -SH, 0);
+    kn.add(ft);
+    J[`foot${side}`] = ft;
+    // Heel & midfoot chassis + hinged distal ball-of-foot toe-off joint (`toeL`/`toeR`)!
+    addBox(ft, 0.054, 0.026, 0.054, 0, 0.013, -0.004, M.dark);
+    const toe = new THREE.Group();
+    toe.position.set(0, 0.0, 0.023);
+    ft.add(toe);
+    J[`toe${side}`] = toe;
+    addBox(toe, 0.052, 0.022, 0.042, 0, 0.011, 0.021, M.dark);
+    addBox(toe, 0.054, 0.007, 0.044, 0, 0.0035, 0.021, M.chrome);
+  }
+
+  // Signature Handheld Props: Dot's "10 Tips" Clipboard, Athena's "Ask Athena" Evidence Tablet, Instructor's Pointer Stick
+  if (def.archetype === 'dot') {
+    addBox(J.wristL, 0.008, 0.14, 0.11, 0.028, -0.055, 0.03, M.dark);
+    addBox(J.wristL, 0.004, 0.125, 0.096, 0.033, -0.055, 0.03, M.clipPaper);
+  } else if (def.archetype === 'athena') {
+    const tabGrp = new THREE.Group();
+    tabGrp.position.set(0.028, -0.052, 0.030);
+    J.wristL.add(tabGrp);
+    J.askAthenaTablet = tabGrp;
+    addBox(tabGrp, 0.011, 0.148, 0.112, 0, 0, 0, M.dark);
+    addBox(tabGrp, 0.013, 0.152, 0.006, 0, 0, 0.056, M.chrome);
+    addBox(tabGrp, 0.004, 0.132, 0.096, 0.006, 0, 0, M.askAthenaScreen);
+    addSph(tabGrp, 0.0045, 0.007, 0.068, 0.046, M.anty_dot);
+  } else if (def.archetype === 'instructor') {
+    const ptr = addCyl(J.palmR, 0.0045, 0.36, 0, -0.025, 0.17, M.chrome, Math.PI * 0.5, 0, 0);
+    addSph(ptr, 0.009, 0, 0.18, 0, M.crimson);
+    J.pointerStick = ptr;
+  }
+
+  // Selection / Possession Ring on floor around feet
+  const ringGeo = new THREE.RingGeometry(0.19, 0.24, 28);
+  ringGeo.rotateX(-Math.PI * 0.5);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(def.color || '#38d6f5'),
+    transparent: true,
+    opacity: 0.0,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.y = 0.006;
+  scaleGroup.add(ring);
+
+  J._leg = LEG;
+  J._th = TH;
+  J._sh = SH;
+  J._ua = UA;
+  J._fa = FA;
+  J._height = height;
+  J._scale = def.scale || 1.0;
+
+  return {
+    id: def.id,
+    def,
+    anchor,
+    scaleGroup,
+    J,
+    ring,
+    ringMat,
+    isSupport: Boolean(def.archetype && def.archetype.startsWith('support_')),
+    cumArcLength: 0,
+    lastStepIdx: 0,
+    isMoving: false,
+    speed: 0,
+    vy: 0,
+    mustacheScale: def.archetype === 'foreman' ? 1.15 : 1.0,
+    shaveCooldown: 0,
+    smokeTimer: 0,
+    stumbleTimer: 0,
+    dispatchTarget: null,
+    dispatchPartnerId: null,
+    patrolWaypoints: AUTONOMOUS_PATROLS[def.id] || null,
+    patrolIdx: 0,
+    patrolPauseTimer: 2.0 + Math.random() * 2.5,
+    autoHandshakeCooldown: 6.0 + Math.random() * 6.0,
+    activeHandshake: null,
+    speechText: '',
+    speechTimer: 0,
+    quoteIdx: 0,
+    // WDI A-1000 Audio-Animatronic Micro-Life & 2nd-Order Inertial Pendulum State
+    blinkCountdown: 1.5 + Math.random() * 3.2,
+    blinkClock: -1,
+    doubleBlink: false,
+    gazeYaw: 0,
+    gazePitch: 0,
+    saccadeX: 0,
+    saccadeY: 0,
+    saccadeTargetX: 0,
+    saccadeTargetY: 0,
+    saccadeTimer: 0.4 + Math.random() * 1.4,
+    prevHeadYaw: 0,
+    prevWorldX: def.home ? def.home.x : 0,
+    prevWorldZ: def.home ? def.home.z : 0,
+    prevSpeed: 0,
+    antSwing: 0,
+    antVel: 0,
+    badgeAngle: 0,
+    badgeVel: 0,
+    mustacheWhip: 0,
+    mustacheVel: 0,
+    breathPhase: Math.random() * Math.PI * 2,
+  };
+}
+
+export function setMetacarpalArch(J, side = 'R', cupAmt = 0.25) {
+  const sgn = side === 'R' ? 1 : -1;
+  const ma = J[`metacarpalArch${side}`];
+  if (!ma) return;
+  const c = Math.max(0, Math.min(1.2, cupAmt));
+  // Cups ulnar half of palm inward around longitudinal & transverse axes!
+  ma.rotation.set(0.22 * c, sgn * 0.38 * c, sgn * 0.14 * c);
+}
+
+export function setFingerCurl(J, side = 'R', idx = 0.14, mid = 0.22, pnk = 0.34, thumb = 0.16, rng = null, archCup = null) {
+  const sgn = side === 'R' ? 1 : -1;
+  const rngVal = rng !== null ? rng : (mid + pnk) * 0.5;
+  const cup = archCup !== null ? archCup : Math.max(0.18, (rngVal + pnk) * 0.48);
+  setMetacarpalArch(J, side, cup);
+
+  for (const [ftag, amt] of [['idx', idx], ['mid', mid], ['rng', rngVal], ['pnk', pnk]]) {
+    const k1 = J[`finger_${ftag}1_${side}`];
+    const k2 = J[`finger_${ftag}2_${side}`];
+    if (k1) k1.rotation.set(0, 0, sgn * THREE.MathUtils.degToRad(72 * amt));
+    if (k2) k2.rotation.set(0, 0, sgn * THREE.MathUtils.degToRad(84 * amt));
+  }
+  const th1 = J[`thumb1_${side}`];
+  const th2 = J[`thumb2_${side}`];
+  if (th1) {
+    th1.rotation.set(
+      THREE.MathUtils.degToRad(22 + 26 * thumb),
+      0,
+      sgn * THREE.MathUtils.degToRad(32 - 66 * thumb)
+    );
+  }
+  if (th2) th2.rotation.set(0, 0, -sgn * THREE.MathUtils.degToRad(42 * thumb));
+}
+
+const _ikTargetLocal = new THREE.Vector3();
+const _ikRel = new THREE.Vector3();
+
+// World-Space 2-Link Analytical Arm IK with 55% Forearm Rotary Cuff Pronation / 45% Wrist Flex & Ulnar Arc!
+export function solveArmIKWorld(
+  char,
+  side,
+  worldTarget,
+  forearmRollRad = 0,
+  wristFlexRad = 0,
+  wristUlnarRad = 0
+) {
+  const { J } = char;
+  const spine = J.spine;
+  const sh = J[`shoulder${side}`];
+  const el = J[`elbow${side}`];
+  const ft = J[`forearmTwist${side}`];
+  const wr = J[`wrist${side}`];
+  if (!spine || !sh || !el || !wr) return;
+
+  char.anchor.updateMatrixWorld(true);
+  _ikTargetLocal.copy(worldTarget);
+  spine.worldToLocal(_ikTargetLocal);
+
+  _ikRel.subVectors(_ikTargetLocal, sh.position);
+  const UA = J._ua;
+  const effFA = J._fa + 0.022;
+  const maxReach = UA + effFA - 0.004;
+
+  let d = _ikRel.length();
+  if (d > maxReach) {
+    const extraLean = Math.min(0.36, (d - maxReach) * 2.2);
+    spine.rotation.x += extraLean;
+    spine.updateMatrixWorld(true);
+    _ikTargetLocal.copy(worldTarget);
+    spine.worldToLocal(_ikTargetLocal);
+    _ikRel.subVectors(_ikTargetLocal, sh.position);
+    d = _ikRel.length();
+    if (d > maxReach) {
+      _ikRel.multiplyScalar(maxReach / Math.max(1e-5, d));
+      d = maxReach;
+    }
+  }
+  d = Math.max(0.035, d);
+
+  const yaw = Math.atan2(_ikRel.x, Math.max(1e-4, _ikRel.z));
+  const horizXZ = Math.hypot(_ikRel.x, _ikRel.z);
+  const alphaTgt = Math.atan2(horizXZ, -_ikRel.y);
+
+  const cosEl = Math.max(-1, Math.min(1, (d * d - UA * UA - effFA * effFA) / Math.max(1e-8, 2 * UA * effFA)));
+  const elbowBend = Math.acos(cosEl);
+  const triOff = Math.atan2(effFA * Math.sin(elbowBend), UA + effFA * Math.cos(elbowBend));
+
+  // YXZ shoulder pitch+yaw + 55% distal forearm pronation sleeve + 45% wrist roll/flex/ulnar deviation!
+  sh.rotation.set(-(alphaTgt - triOff), yaw, 0, 'YXZ');
+  el.rotation.set(-elbowBend, 0, 0, 'XYZ');
+  if (ft) {
+    ft.rotation.set(0, forearmRollRad * 0.55, 0, 'XYZ');
+    wr.rotation.set(wristFlexRad, forearmRollRad * 0.45, wristUlnarRad, 'XYZ');
+  } else {
+    wr.rotation.set(wristFlexRad, forearmRollRad, wristUlnarRad, 'XYZ');
+  }
+}
+
+// Whole-Body Anticipation Weight-Shift: shifts pelvis in XZ + coils spine while keeping both soles planted!
+export function applyAnticipationWeightShift(char, shiftX = 0, shiftZ = 0, spineYaw = 0, extraDrop = 0) {
+  const { J } = char;
+  const baseDrop = 0.012 * J._height + extraDrop + Math.hypot(shiftX, shiftZ) * 0.35;
+  const hHip = Math.max(0.09, J._leg - baseDrop);
+  J.pelvis.position.set(shiftX, hHip, shiftZ);
+  J.pelvis.rotation.set(0, -spineYaw * 0.35, -shiftX * 1.4);
+  J.spine.rotation.y += spineYaw;
+
+  const [aL, bL] = solve2LinkLegIK(J._th, J._sh, -shiftZ, -hHip);
+  const [aR, bR] = solve2LinkLegIK(J._th, J._sh, -shiftZ, -hHip);
+  J.hipL.rotation.set(aL, 0, shiftX * 1.1);
+  J.kneeL.rotation.set(bL, 0, 0);
+  J.footL.rotation.set(-(aL + bL), 0, -shiftX * 1.1);
+  J.hipR.rotation.set(aR, 0, shiftX * 1.1);
+  J.kneeR.rotation.set(bR, 0, 0);
+  J.footR.rotation.set(-(aR + bR), 0, -shiftX * 1.1);
+}
+
+export function setFingerCascade(J, side = 'R', progress = 0.0, fromCurl = 0.10, toCurl = 0.90, archPeak = 0.85) {
+  // Pixar / Arcane staggered finger cascade: pinky leads ring -> middle -> index -> thumb by 1-3 frames!
+  const sgn = side === 'R' ? 1 : -1;
+  const closing = toCurl >= fromCurl;
+  const offsets = closing
+    ? { pnk: 0.00, rng: 0.07, mid: 0.14, idx: 0.21, th: 0.26 }
+    : { idx: 0.00, mid: 0.07, rng: 0.14, pnk: 0.21, th: 0.05 };
+  const span = 0.72;
+
+  const evalCurl = (off, distalLag = 0) => {
+    const raw = (progress - off - distalLag) / span;
+    const u = Math.max(0, Math.min(1, raw));
+    const smooth = u * u * (3 - 2 * u);
+    return fromCurl + (toCurl - fromCurl) * smooth;
+  };
+
+  for (const ftag of ['idx', 'mid', 'rng', 'pnk']) {
+    const cProx = evalCurl(offsets[ftag], 0.0);
+    const cDist = evalCurl(offsets[ftag], 0.05); // Distal phalanx trails proximal phalanx!
+    const k1 = J[`finger_${ftag}1_${side}`];
+    const k2 = J[`finger_${ftag}2_${side}`];
+    if (k1) k1.rotation.set(0, 0, sgn * THREE.MathUtils.degToRad(72 * cProx));
+    if (k2) k2.rotation.set(0, 0, sgn * THREE.MathUtils.degToRad(86 * cDist));
+  }
+
+  const thC = evalCurl(offsets.th, 0.02);
+  const th1 = J[`thumb1_${side}`];
+  const th2 = J[`thumb2_${side}`];
+  if (th1) {
+    th1.rotation.set(
+      THREE.MathUtils.degToRad(22 + 26 * thC),
+      0,
+      sgn * THREE.MathUtils.degToRad(32 - 66 * thC)
+    );
+  }
+  if (th2) th2.rotation.set(0, 0, -sgn * THREE.MathUtils.degToRad(42 * thC));
+
+  const archU = evalCurl(offsets.pnk, 0.0);
+  setMetacarpalArch(J, side, 0.18 + archPeak * archU);
+}
+
+export function setEyesAndBrows(J, eyes = 1.0, brows = 0.0) {
+  for (const [side, sgn] of [['L', 1], ['R', -1]]) {
+    const ep = J[`eye${side}`];
+    const br = J[`brow${side}`];
+    if (ep) ep.scale.set(1, Math.max(0.08, eyes), 1);
+    if (!br) continue;
+    if (brows === 'sad') {
+      br.rotation.set(0, 0, -sgn * 0.42);
+      br.position.y = 0.125 * 0.52 + 0.039;
+    } else {
+      const bVal = Number(brows) || 0;
+      br.rotation.set(0, 0, sgn * 0.45 * Math.min(bVal, 0));
+      br.position.y = 0.125 * 0.52 + 0.035 + 0.013 * Math.max(bVal, 0) - 0.007 * Math.max(-bVal, 0);
+    }
+  }
+}
+
+export function resetBodyPose(char, drop = 0) {
+  const { J } = char;
+  for (const k of [
+    'spine', 'neck', 'head',
+    'shoulderL', 'shoulderR', 'elbowL', 'elbowR',
+    'forearmTwistL', 'forearmTwistR', 'wristL', 'wristR', 'badgePivot',
+  ]) {
+    if (J[k]) J[k].rotation.set(0, 0, 0);
+  }
+  const baseDrop = 0.012 * J._height + drop;
+  const hHip = Math.max(0.09, J._leg - baseDrop);
+  const [a, b] = solve2LinkLegIK(J._th, J._sh, 0, -hHip);
+  J.pelvis.position.set(0, hHip, 0);
+  J.pelvis.rotation.set(0, 0, 0);
+  for (const sd of ['L', 'R']) {
+    J[`hip${sd}`].rotation.set(a, 0, 0);
+    J[`knee${sd}`].rotation.set(b, 0, 0);
+    J[`foot${sd}`].rotation.set(-(a + b), 0, 0);
+    if (J[`toe${sd}`]) J[`toe${sd}`].rotation.set(0, 0, 0);
+  }
+  // Natural relaxed cascade at rest: index slightly open, pinky most curled + gentle metacarpal cup!
+  setFingerCurl(J, 'L', 0.14, 0.20, 0.34, 0.16, 0.27, 0.24);
+  setFingerCurl(J, 'R', 0.14, 0.20, 0.34, 0.16, 0.27, 0.24);
+}
+
+export function applyZeroSlideGait(char, isMoving, sprint = false) {
+  const { J } = char;
+  const scale = J._scale;
+  const LStepWorld = (sprint ? 0.25 : 0.19) * scale * J._height;
+  const LStepLoc = LStepWorld / Math.max(1e-4, scale);
+  const baseDrop = 0.012 * J._height;
+
+  if (!isMoving) {
+    const hHip = J._leg - baseDrop;
+    const [a, b] = solve2LinkLegIK(J._th, J._sh, 0, -hHip);
+    J.pelvis.position.set(0, hHip, 0);
+    J.pelvis.rotation.set(0, 0, 0);
+    for (const sd of ['L', 'R']) {
+      J[`hip${sd}`].rotation.set(a, 0, 0);
+      J[`knee${sd}`].rotation.set(b, 0, 0);
+      J[`foot${sd}`].rotation.set(-(a + b), 0, 0);
+      if (J[`toe${sd}`]) J[`toe${sd}`].rotation.set(0, 0, 0);
+    }
+    return;
+  }
+
+  const stepIdx = Math.floor(char.cumArcLength / LStepWorld);
+  const stepChanged = stepIdx !== char.lastStepIdx;
+  char.lastStepIdx = stepIdx;
+  const u = Math.max(0, Math.min(0.9999, (char.cumArcLength - stepIdx * LStepWorld) / LStepWorld));
+  const sinU = Math.sin(u * Math.PI);
+  const cosU = Math.cos(u * Math.PI);
+
+  const liftBob = 0.006 * J._height * sinU;
+  const hHip = J._leg - baseDrop + liftBob;
+  const sgnStance = stepIdx % 2 === 0 ? 1 : -1;
+
+  J.pelvis.position.set(0, hHip, 0);
+  J.pelvis.rotation.set(0, 0.06 * sgnStance * sinU, 0.035 * sgnStance * sinU);
+  J.spine.rotation.set(sprint ? 0.14 : 0.06, -0.07 * sgnStance * sinU, 0);
+
+  const stanceDz = LStepLoc * (0.5 - u);
+  const swingDz = -0.5 * LStepLoc * cosU;
+  const swingLift = 0.036 * J._height * sinU;
+  // Independent forefoot ball-of-foot push-off hinge (`24 deg` = `0.42 rad` late-stance roll)!
+  const pushOff = u > 0.54 ? Math.sin(((u - 0.54) / 0.46) * Math.PI) * 0.42 : 0.0;
+  const swingToeClear = -0.18 * sinU;
+
+  let dzL, dyL, fOffL, toeOffL, dzR, dyR, fOffR, toeOffR;
+  if (stepIdx % 2 === 0) {
+    dzL = stanceDz; dyL = -hHip; fOffL = pushOff * 0.45; toeOffL = -pushOff;
+    dzR = swingDz; dyR = -hHip + swingLift; fOffR = 0.24 * cosU; toeOffR = swingToeClear;
+  } else {
+    dzR = stanceDz; dyR = -hHip; fOffR = pushOff * 0.45; toeOffR = -pushOff;
+    dzL = swingDz; dyL = -hHip + swingLift; fOffL = 0.24 * cosU; toeOffL = swingToeClear;
+  }
+
+  const [aL, bL] = solve2LinkLegIK(J._th, J._sh, dzL, dyL);
+  const [aR, bR] = solve2LinkLegIK(J._th, J._sh, dzR, dyR);
+  J.hipL.rotation.set(aL, 0, 0);
+  J.kneeL.rotation.set(bL, 0, 0);
+  J.footL.rotation.set(-(aL + bL) + fOffL, 0, 0);
+  if (J.toeL) J.toeL.rotation.set(toeOffL, 0, 0);
+  J.hipR.rotation.set(aR, 0, 0);
+  J.kneeR.rotation.set(bR, 0, 0);
+  J.footR.rotation.set(-(aR + bR) + fOffR, 0, 0);
+  if (J.toeR) J.toeR.rotation.set(toeOffR, 0, 0);
+
+  // Natural counter-arm swing + swinging neck lanyard ID badge!
+  const armSwing = (sprint ? 0.65 : 0.45) * sgnStance * sinU;
+  J.shoulderL.rotation.set(armSwing, 0, 0.10);
+  J.shoulderR.rotation.set(-armSwing, 0, -0.10);
+  J.elbowL.rotation.set(-0.42, 0, 0);
+  J.elbowR.rotation.set(-0.42, 0, 0);
+  if (J.badgePivot) {
+    J.badgePivot.rotation.set(-0.20 - 0.08 * sinU, 0, 0.14 * sgnStance * sinU);
+  }
+  return stepChanged;
+}
+
+export function applyStumbleOverlay(char) {
+  if (!char || char.stumbleTimer <= 0) return;
+  const { J } = char;
+  const u = 1.0 - char.stumbleTimer / 0.70;
+  const sw = Math.sin(Math.max(0, Math.min(1, u)) * Math.PI);
+  J.spine.rotation.set(0.58 * sw, 0, 0.18 * sw);
+  J.neck.rotation.set(-0.32 * sw, 0, 0);
+  J.head.rotation.set(-0.22 * sw, 0.28 * Math.sin(u * 14), 0);
+  J.shoulderL.rotation.set(-1.68 * sw, 0, 0.68 * sw);
+  J.shoulderR.rotation.set(-1.48 * sw, 0, -0.68 * sw);
+  J.elbowL.rotation.set(-0.35 * sw, 0, 0);
+  J.elbowR.rotation.set(-0.35 * sw, 0, 0);
+  if (J.badgePivot) {
+    J.badgePivot.rotation.set(-0.85 * sw, 0, 0.35 * sw);
+  }
+  setEyesAndBrows(J, 1.65, 1.0);
+}
+
+export class CastManager {
+  constructor(scene, textures = {}) {
+    this.scene = scene;
+    this.M = createRigMaterials(textures);
+    this.cast = [];
+    this.castById = new Map();
+    this.supportCrew = [];
+    this.mustacheTrimmings = [];
+
+    for (const def of CAST_MANIFEST) {
+      const c = buildArticulatedCharacter(def, this.M);
+      this.scene.add(c.anchor);
+      this.cast.push(c);
+      this.castById.set(c.id, c);
+    }
+
+    for (const sdef of SUPPORT_CREW_DEFS) {
+      const sc = buildArticulatedCharacter(sdef, this.M);
+      this.scene.add(sc.anchor);
+      this.supportCrew.push(sc);
+    }
+  }
+
+  getCharacter(id) {
+    return this.castById.get(id) || this.cast[0];
+  }
+
+  triggerSpeech(charOrId, text, dur = 4.2) {
+    const c = typeof charOrId === 'string' ? this.castById.get(charOrId) : charOrId;
+    if (!c) return;
+    if (!text && c.def.quotes && c.def.quotes.length) {
+      text = c.def.quotes[c.quoteIdx % c.def.quotes.length];
+      c.quoteIdx++;
+    }
+    c.speechText = text || '';
+    c.speechTimer = dur;
+  }
+
+  shaveForemanMustache() {
+    const foreman = this.castById.get('foreman');
+    if (!foreman || !foreman.J.mustacheRoot) return null;
+    const worldPos = new THREE.Vector3();
+    foreman.J.mustacheRoot.getWorldPosition(worldPos);
+
+    foreman.mustacheScale = 0.46; // Freshly buzzed stubble!
+    foreman.shaveCooldown = 2.0;
+    foreman.J.mustacheRoot.scale.set(0.46, 0.46, 0.46);
+    this.triggerSpeech(
+      foreman,
+      'SHAVE THAT DAMN MUSTACHE?! This handlebar is pure Tony Bjork custom-chopper heritage!',
+      5.2
+    );
+
+    // Spawn 18 flying mustache trimming particles!
+    for (let i = 0; i < 18; i++) {
+      const p = new THREE.Mesh(UNIT_BOX, this.M.mustache);
+      p.scale.set(0.022, 0.008, 0.010);
+      p.position.copy(worldPos);
+      this.scene.add(p);
+      const ang = (i / 18) * Math.PI * 2 + Math.random() * 0.3;
+      this.mustacheTrimmings.push({
+        mesh: p,
+        vx: Math.cos(ang) * (0.7 + Math.random() * 0.9),
+        vy: 0.9 + Math.random() * 1.1,
+        vz: Math.sin(ang) * (0.7 + Math.random() * 0.9),
+        life: 1.35,
+      });
+    }
+    return worldPos;
+  }
+
+  dispatchCharacter(charId, targetX, targetZ, partnerId = null) {
+    const c = this.castById.get(charId);
+    if (!c) return null;
+    c.dispatchTarget = { x: targetX, z: targetZ };
+    c.dispatchPartnerId = partnerId;
+    this.triggerSpeech(c, `On my way to (${targetX.toFixed(1)}, ${targetZ.toFixed(1)})!`, 2.6);
+    return c;
+  }
+
+  update(dt, elapsed, possessedId, resolveCollisionFn, handshakeMgr, audioEngine) {
+    // Update flying mustache trimmings
+    for (let i = this.mustacheTrimmings.length - 1; i >= 0; i--) {
+      const tr = this.mustacheTrimmings[i];
+      tr.life -= dt;
+      if (tr.life <= 0) {
+        this.scene.remove(tr.mesh);
+        this.mustacheTrimmings.splice(i, 1);
+        continue;
+      }
+      tr.vy -= 4.8 * dt;
+      tr.mesh.position.x += tr.vx * dt;
+      tr.mesh.position.y = Math.max(0.01, tr.mesh.position.y + tr.vy * dt);
+      tr.mesh.position.z += tr.vz * dt;
+      tr.mesh.rotation.x += 8 * dt;
+      tr.mesh.rotation.z += 6 * dt;
+    }
+
+    // Grow Foreman's Walrus Handlebar Mustache continuously over time!
+    const foreman = this.castById.get('foreman');
+    if (foreman && foreman.J.mustacheRoot) {
+      if (foreman.shaveCooldown > 0) {
+        foreman.shaveCooldown -= dt;
+      } else {
+        // Grows steadily up to a magnificent 2.45x wingspan!
+        foreman.mustacheScale = Math.min(2.45, foreman.mustacheScale + dt * 0.022);
+      }
+      const ms = foreman.mustacheScale;
+      foreman.J.mustacheRoot.scale.set(ms, 0.85 + ms * 0.14, 0.90 + ms * 0.10);
+    }
+
+    // Update all 10 named cast members
+    for (const c of this.cast) {
+      // Highlight selection ring on possessed character
+      const isPossessed = c.id === possessedId;
+      c.ringMat.opacity = isPossessed ? 0.55 + 0.20 * Math.sin(elapsed * 5.0) : 0.0;
+
+      if (c.speechTimer > 0) {
+        c.speechTimer = Math.max(0, c.speechTimer - dt);
+      }
+      if (c.stumbleTimer > 0) {
+        c.stumbleTimer = Math.max(0, c.stumbleTimer - dt);
+      }
+      if (c.autoHandshakeCooldown > 0) {
+        c.autoHandshakeCooldown = Math.max(0, c.autoHandshakeCooldown - dt);
+      }
+
+      // Carl's blinking amber beacon + post-zap rising smoke puffs
+      if (c.J.carlBeaconMesh) {
+        const blinkFast = c.smokeTimer > 0 || c.stumbleTimer > 0;
+        const on = Math.sin(elapsed * (blinkFast ? 22 : 6.5)) > 0;
+        c.J.carlBeaconMesh.scale.setScalar(on ? 0.028 : 0.017);
+      }
+      if (c.J.smokePuffs) {
+        if (c.smokeTimer > 0) {
+          c.smokeTimer = Math.max(0, c.smokeTimer - dt);
+          c.J.smokePuffs.forEach((sp, si) => {
+            sp.visible = true;
+            const ph = ((elapsed * 1.4 + si * 0.25) % 1.0);
+            sp.position.set(0.03 * Math.sin(ph * 6 + si), 0.18 + ph * 0.34, 0.02 * Math.cos(ph * 5));
+            sp.scale.setScalar(0.024 + ph * 0.035);
+          });
+        } else {
+          c.J.smokePuffs.forEach((sp) => { sp.visible = false; });
+        }
+      }
+
+      // v6 teaser: a director can take a character over completely.
+      if (c.scripted) { c.scripted(c, dt, elapsed); continue; }
+
+      // Skip AI routine if currently mid-handshake (handshakes.js drives limbs!)
+      if (c.activeHandshake) continue;
+
+      // Skip AI routine if currently possessed by player (index.html / player controller drives movement!)
+      if (isPossessed) {
+        if (c.stumbleTimer > 0) applyStumbleOverlay(c);
+        continue;
+      }
+
+      // Dispatched walk via "The Brain" Map!
+      if (c.dispatchTarget) {
+        const dx = c.dispatchTarget.x - c.anchor.position.x;
+        const dz = c.dispatchTarget.z - c.anchor.position.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist > 0.22) {
+          const walkSpeed = c.id === 'tiny' ? 2.4 : 2.15;
+          const step = Math.min(dist, walkSpeed * dt);
+          const nx = c.anchor.position.x + (dx / dist) * step;
+          const nz = c.anchor.position.z + (dz / dist) * step;
+          const resolved = resolveCollisionFn
+            ? resolveCollisionFn(nx, nz, 0.28 * c.J._scale, true)
+            : { x: nx, z: nz };
+          const moved = Math.hypot(resolved.x - c.anchor.position.x, resolved.z - c.anchor.position.z);
+          c.anchor.position.x = resolved.x;
+          c.anchor.position.z = resolved.z;
+          c.anchor.position.y = 0.0;
+          c.cumArcLength += moved;
+
+          const targetHeading = Math.atan2(dx, dz);
+          let diff = targetHeading - c.anchor.rotation.y;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          c.anchor.rotation.y += diff * Math.min(1, dt * 10);
+
+          resetBodyPose(c);
+          const stepped = applyZeroSlideGait(c, moved > 1e-4, false);
+          if (stepped && audioEngine) {
+            audioEngine.playFootstep(c.anchor.position, false, c.J._scale);
+          }
+          setEyesAndBrows(c.J, 1.1, 0.4);
+          continue;
+        } else {
+          // Arrived at dispatched point! Check if another cast member is nearby for an emergent GTA encounter!
+          c.dispatchTarget = null;
+          let partner = c.dispatchPartnerId ? this.castById.get(c.dispatchPartnerId) : null;
+          c.dispatchPartnerId = null;
+          if (!partner) {
+            let bestD = 1.65;
+            for (const other of this.cast) {
+              if (other.id === c.id || other.activeHandshake) continue;
+              const d = Math.hypot(
+                other.anchor.position.x - c.anchor.position.x,
+                other.anchor.position.z - c.anchor.position.z
+              );
+              if (d < bestD) {
+                bestD = d;
+                partner = other;
+              }
+            }
+          }
+          if (partner && handshakeMgr && !partner.activeHandshake) {
+            const hType = c.def.defaultHandshake || 2;
+            handshakeMgr.startHandshake(c, partner, hType, audioEngine, this);
+            continue;
+          }
+        }
+      }
+
+      // GTA 6 Autonomous Multi-Waypoint Shop Patrols (Lou, Dot, Athena)!
+      if (c.patrolWaypoints && c.patrolWaypoints.length > 1) {
+        if (c.patrolPauseTimer > 0) {
+          c.patrolPauseTimer -= dt;
+          // Spontaneous coworker handshake if another unpossessed bot is right beside us!
+          if (c.autoHandshakeCooldown <= 0 && handshakeMgr) {
+            for (const other of this.cast) {
+              if (other.id === c.id || other.id === possessedId || other.activeHandshake) continue;
+              const d = Math.hypot(
+                other.anchor.position.x - c.anchor.position.x,
+                other.anchor.position.z - c.anchor.position.z
+              );
+              if (d < 1.55) {
+                c.autoHandshakeCooldown = 22.0;
+                other.autoHandshakeCooldown = 22.0;
+                handshakeMgr.startHandshake(c, other, c.def.defaultHandshake || 2, audioEngine, this);
+                break;
+              }
+            }
+            if (c.activeHandshake) continue;
+          }
+          this._applyIdleRoutine(c, elapsed);
+          this._applyAudioAnimatronicMicroLife(c, dt, elapsed, possessedId ? this.castById.get(possessedId) : null);
+          continue;
+        }
+
+        const wp = c.patrolWaypoints[c.patrolIdx % c.patrolWaypoints.length];
+        const dx = wp.x - c.anchor.position.x;
+        const dz = wp.z - c.anchor.position.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist > 0.20) {
+          const spd = 1.55;
+          const step = Math.min(dist, spd * dt);
+          const nx = c.anchor.position.x + (dx / dist) * step;
+          const nz = c.anchor.position.z + (dz / dist) * step;
+          const resolved = resolveCollisionFn
+            ? resolveCollisionFn(nx, nz, 0.26 * c.J._scale, true)
+            : { x: nx, z: nz };
+          const moved = Math.hypot(resolved.x - c.anchor.position.x, resolved.z - c.anchor.position.z);
+          c.anchor.position.x = resolved.x;
+          c.anchor.position.z = resolved.z;
+          c.anchor.position.y = 0.0;
+          c.cumArcLength += moved;
+
+          const targetHeading = Math.atan2(dx, dz);
+          let diff = targetHeading - c.anchor.rotation.y;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          c.anchor.rotation.y += diff * Math.min(1, dt * 8.5);
+
+          resetBodyPose(c);
+          applyZeroSlideGait(c, moved > 1e-4, false);
+          setEyesAndBrows(c.J, 1.05, 0.35);
+          this._applyAudioAnimatronicMicroLife(c, dt, elapsed, possessedId ? this.castById.get(possessedId) : null);
+          // If blocked by an obstacle and barely moving, advance waypoint gracefully
+          if (moved < 1e-4) {
+            c.patrolIdx = (c.patrolIdx + 1) % c.patrolWaypoints.length;
+            c.patrolPauseTimer = 2.0;
+          }
+          continue;
+        } else {
+          c.anchor.rotation.y = wp.heading || 0;
+          c.patrolPauseTimer = wp.pause || 4.0;
+          c.patrolIdx = (c.patrolIdx + 1) % c.patrolWaypoints.length;
+          this._applyIdleRoutine(c, elapsed);
+          this._applyAudioAnimatronicMicroLife(c, dt, elapsed, possessedId ? this.castById.get(possessedId) : null);
+          continue;
+        }
+      }
+
+      // Autonomous Idle / Living-World Routines for stationary cast members!
+      this._applyIdleRoutine(c, elapsed);
+      this._applyAudioAnimatronicMicroLife(c, dt, elapsed, possessedId ? this.castById.get(possessedId) : null);
+    }
+
+    // Update ambient background support bots (Gus, Otis, RFID Shift Tech)
+    for (const sc of this.supportCrew) {
+      if (sc.scripted) { sc.scripted(sc, dt, elapsed); continue; }
+      this._applySupportRoutine(sc, elapsed);
+      this._applyAudioAnimatronicMicroLife(sc, dt, elapsed, null);
+    }
+  }
+
+  _applyAudioAnimatronicMicroLife(c, dt, elapsed, playerChar) {
+    // WDI A-1000 Audio-Animatronic Micro-Life: asymmetric blinks, eye saccades, servo breath & 2nd-order pendulum lag!
+    const { J } = c;
+    const safeDt = Math.max(0.004, Math.min(0.05, dt));
+
+    // 1. Multi-harmonic non-periodic servo breathing sway
+    const ph = c.breathPhase || 0;
+    const servoBreath = 0.62 * Math.sin(elapsed * 1.35 + ph) + 0.38 * Math.sin(elapsed * 2.18 + ph * 1.7);
+    if (J.spine) J.spine.rotation.x += 0.014 * servoBreath;
+    if (J.shoulderL) J.shoulderL.rotation.z += 0.012 * servoBreath;
+    if (J.shoulderR) J.shoulderR.rotation.z -= 0.012 * servoBreath;
+
+    // 2. Proximity Eye Saccades + Neck Gaze Tracking toward nearby player (within 3.6m)
+    let tgtYaw = 0;
+    let hasPlayerFocus = false;
+    if (playerChar && playerChar !== c && c.id !== 'volt') {
+      const dx = playerChar.anchor.position.x - c.anchor.position.x;
+      const dz = playerChar.anchor.position.z - c.anchor.position.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist > 0.35 && dist < 3.6) {
+        let rel = Math.atan2(dx, dz) - c.anchor.rotation.y;
+        while (rel > Math.PI) rel -= Math.PI * 2;
+        while (rel < -Math.PI) rel += Math.PI * 2;
+        if (Math.abs(rel) < 1.30) {
+          tgtYaw = THREE.MathUtils.clamp(rel * 0.45, -0.34, 0.34);
+          hasPlayerFocus = true;
+        }
+      }
+    }
+    c.gazeYaw += (tgtYaw - c.gazeYaw) * Math.min(1, safeDt * 4.5);
+    if (J.head) J.head.rotation.y += c.gazeYaw;
+
+    // Crisp target-tracking eye saccades (eyes dart 80ms before neck catches up!)
+    c.saccadeTimer -= safeDt;
+    if (c.saccadeTimer <= 0) {
+      c.saccadeTimer = hasPlayerFocus ? 0.45 + Math.random() * 0.85 : 0.75 + Math.random() * 1.9;
+      c.saccadeTargetX = hasPlayerFocus
+        ? THREE.MathUtils.clamp((tgtYaw - c.gazeYaw) * 0.032 + (Math.random() - 0.5) * 0.005, -0.010, 0.010)
+        : (Math.random() - 0.5) * 0.014;
+      c.saccadeTargetY = (Math.random() - 0.5) * 0.006;
+    }
+    c.saccadeX += (c.saccadeTargetX - c.saccadeX) * Math.min(1, safeDt * 24.0);
+    c.saccadeY += (c.saccadeTargetY - c.saccadeY) * Math.min(1, safeDt * 24.0);
+    if (J.eyeL) {
+      J.eyeL.position.x = 0.043 + c.saccadeX;
+      J.eyeL.position.y = 0.125 * 0.52 + c.saccadeY;
+    }
+    if (J.eyeR) {
+      J.eyeR.position.x = -0.043 + c.saccadeX;
+      J.eyeR.position.y = 0.125 * 0.52 + c.saccadeY;
+    }
+
+    // 3. Asymmetric Pixar Visor Blinks (`asymBlink`: Left lid leads Right lid by 34ms!)
+    c.blinkCountdown -= safeDt;
+    if (c.blinkCountdown <= 0 && c.blinkClock < 0) {
+      c.blinkClock = 0;
+      c.doubleBlink = Math.random() < 0.22;
+    }
+    if (c.blinkClock >= 0) {
+      c.blinkClock += safeDt;
+      const totalDur = c.doubleBlink ? 0.34 : 0.17;
+      const asymBlink = (localT) => {
+        if (localT < 0) return 1.0;
+        const cyc = localT % 0.17;
+        if (localT > totalDur) return 1.0;
+        const tri = 1.0 - Math.abs(cyc - 0.075) / 0.075;
+        return Math.max(0.07, 1.0 - 0.93 * Math.max(0, tri));
+      };
+      const blinkL = asymBlink(c.blinkClock);
+      const blinkR = asymBlink(c.blinkClock - 0.034);
+      if (J.eyeL) J.eyeL.scale.y *= blinkL;
+      if (J.eyeR) J.eyeR.scale.y *= blinkR;
+      if (c.blinkClock > totalDur + 0.04) {
+        c.blinkClock = -1;
+        c.blinkCountdown = 2.1 + Math.random() * 3.8;
+      }
+    }
+
+    // 4. True 2nd-Order Inertial Pendulum Integration on Neck Lanyard ID Badge, Antenna & Foreman Mustache Whip!
+    const wx = c.anchor.position.x;
+    const wz = c.anchor.position.z;
+    const curSpeed = Math.hypot(wx - (c.prevWorldX ?? wx), wz - (c.prevWorldZ ?? wz)) / safeDt;
+    const linAccel = THREE.MathUtils.clamp((curSpeed - (c.prevSpeed || 0)) / safeDt, -12, 12);
+    c.prevWorldX = wx;
+    c.prevWorldZ = wz;
+    c.prevSpeed = curSpeed;
+
+    const headYawNow = (J.head ? J.head.rotation.y : 0) + c.anchor.rotation.y;
+    let dYaw = headYawNow - (c.prevHeadYaw ?? headYawNow);
+    while (dYaw > Math.PI) dYaw -= Math.PI * 2;
+    while (dYaw < -Math.PI) dYaw += Math.PI * 2;
+    const angImpulse = THREE.MathUtils.clamp(dYaw / safeDt, -8, 8);
+    c.prevHeadYaw = headYawNow;
+
+    // Antenna spring-damper
+    c.antVel += (-angImpulse * 0.28 - c.antSwing * 38.0 - c.antVel * 5.2) * safeDt;
+    c.antSwing = THREE.MathUtils.clamp(c.antSwing + c.antVel * safeDt, -0.35, 0.35);
+    if (J.antenna) J.antenna.rotation.z = c.antSwing;
+
+    // Neck lanyard ID badge 2nd-order pendulum (`omega += (-g/L*sin(theta) - accel/L - damp*omega)*dt`)
+    c.badgeVel += (-42.0 * Math.sin(c.badgeAngle) - linAccel * 0.45 - angImpulse * 0.22 - 4.8 * c.badgeVel) * safeDt;
+    c.badgeAngle = THREE.MathUtils.clamp(c.badgeAngle + c.badgeVel * safeDt, -0.45, 0.45);
+    if (J.badgePivot) {
+      J.badgePivot.rotation.x += -Math.abs(c.badgeAngle) * 0.35;
+      J.badgePivot.rotation.z += c.badgeAngle;
+    }
+
+    // Foreman's Sculpted Walrus Mustache Secondary Wing-Tip Whip!
+    if (J.mustacheTipL && J.mustacheTipR) {
+      const rantDrive = c.speechTimer > 0 ? Math.sin(elapsed * 18.0) * 1.6 : 0.0;
+      c.mustacheVel += (-angImpulse * 0.42 + rantDrive - c.mustacheWhip * 46.0 - c.mustacheVel * 5.6) * safeDt;
+      c.mustacheWhip = THREE.MathUtils.clamp(c.mustacheWhip + c.mustacheVel * safeDt, -0.32, 0.32);
+      J.mustacheTipL.rotation.set(0.08 * Math.abs(c.mustacheWhip), 0, c.mustacheWhip);
+      J.mustacheTipR.rotation.set(0.08 * Math.abs(c.mustacheWhip), 0, c.mustacheWhip);
+    }
+  }
+
+  _applyIdleRoutine(c, t) {
+    const { J } = c;
+    c.anchor.position.y = 0.0; // Strictly grounded at Y = 0.000m!
+    resetBodyPose(c);
+
+    switch (c.id) {
+      case 'volt': {
+        // 120 BPM 4-step Electro-Boogaloo Pop-Lock Dance!
+        const beatFloat = t * 2.0; // 120 BPM = 2 beats/sec
+        const beatIdx = Math.floor(beatFloat);
+        const beatPh = beatFloat - beatIdx;
+        const pop = beatPh < 0.18 ? 1.0 : Math.exp(-(beatPh - 0.18) * 9.0);
+        // Bend knees cleanly so feet stay planted at Y=0.000!
+        resetBodyPose(c, 0.028 * pop);
+        const step = beatIdx % 4;
+        if (step === 0) {
+          J.spine.rotation.set(0.12 * pop, 0.38 * pop, -0.18 * pop);
+          J.head.rotation.set(0, -0.22 * pop, 0.08 * pop);
+          J.shoulderL.rotation.set(-1.55, 0.42, 0.40);
+          J.elbowL.rotation.set(-1.05, 0, 0);
+          J.shoulderR.rotation.set(0.25, 0, -0.68);
+          J.elbowR.rotation.set(-0.65, 0, 0);
+        } else if (step === 1) {
+          J.spine.rotation.set(0.12 * pop, -0.38 * pop, 0.18 * pop);
+          J.head.rotation.set(0, 0.22 * pop, -0.08 * pop);
+          J.shoulderR.rotation.set(-1.55, -0.42, -0.40);
+          J.elbowR.rotation.set(-1.05, 0, 0);
+          J.shoulderL.rotation.set(0.25, 0, 0.68);
+          J.elbowL.rotation.set(-0.65, 0, 0);
+        } else if (step === 2) {
+          const w = Math.sin(beatPh * Math.PI * 2);
+          J.shoulderL.rotation.set(-1.35, 0, 0.88 + 0.35 * w);
+          J.shoulderR.rotation.set(-1.35, 0, -0.88 + 0.35 * w);
+          J.elbowL.rotation.set(-0.48 * w, 0, 0);
+          J.elbowR.rotation.set(0.48 * w, 0, 0);
+          J.head.rotation.set(0, 0.22 * w, 0.12 * w);
+        } else {
+          J.shoulderR.rotation.set(-2.15, 0.15, -0.2);
+          J.elbowR.rotation.set(-0.35, 0, 0);
+          J.shoulderL.rotation.set(-0.95, -0.15, 0.25);
+          setFingerCurl(J, 'R', 0.0, 0.92, 0.92, 0.8);
+        }
+        if (J.badgePivot) J.badgePivot.rotation.set(-0.26 * pop, 0, 0.22 * Math.sin(t * 7.5));
+        if (J.visorSparks) {
+          J.visorSparks.forEach((sp) => { sp.visible = beatPh < 0.28; });
+        }
+        setEyesAndBrows(J, 0.45 + 0.85 * pop, 0.9 * pop);
+        break;
+      }
+
+      case 'anty': {
+        // Mr. Anticipation: dramatic inhale, raised index finger, 3 pulsing cyan (...) dots!
+        const u = ((t + 2.1) % 5.0) / 5.0; // Phase-shifted so dots shine immediately!
+        if (u < 0.82) {
+          const p = Math.min(1, u / 0.20);
+          J.spine.rotation.set(-0.20 * p + 0.015 * Math.sin(t * 5), 0, 0);
+          J.head.rotation.set(-0.16 * p, 0.05 * Math.sin(t * 1.4), 0);
+          J.shoulderR.rotation.set(-2.12 * p, -0.15, -0.12);
+          J.elbowR.rotation.set(-0.55 * p, 0, 0);
+          setFingerCurl(J, 'R', 0.0, 0.95, 0.95, 0.85);
+          setEyesAndBrows(J, 1.45, 1.0);
+        } else {
+          const p = Math.sin(((u - 0.82) / 0.18) * Math.PI);
+          J.spine.rotation.set(0.24 * p, 0, 0);
+          J.head.rotation.set(0.28 * p, 0, 0);
+          setEyesAndBrows(J, 0.32, 'sad');
+        }
+        if (J.ellipsisDots) {
+          const thresholds = [0.08, 0.24, 0.40];
+          J.ellipsisDots.forEach((dot, di) => {
+            const vis = u >= thresholds[di] && u < 0.82;
+            dot.visible = vis;
+            if (vis) {
+              const pulse = 0.020 + 0.006 * Math.sin(t * 6.5 + di);
+              dot.scale.setScalar(pulse);
+              dot.position.y = 0.76 + 0.015 * Math.sin(t * 4.2 + di * 0.9);
+            }
+          });
+        }
+        break;
+      }
+
+      case 'pj_wawa': {
+        // Continuous 5-tier Bro-Dap demonstration with Gus beside his spotless chrome chest!
+        const gus = this.supportCrew.find((s) => s.id === 'gus_dap') || null;
+        this._poseIdleBroDap(c, gus, 1, t);
+        break;
+      }
+
+      case 'foreman': {
+        // Commanding Shop Boss in Office: surveys Bay 02 & gestures proudly
+        const g = Math.sin(t * 2.4);
+        J.spine.rotation.set(0.06, 0.14 * Math.sin(t * 1.1), 0);
+        J.head.rotation.set(0.05, 0.22 * Math.sin(t * 0.9), 0);
+        J.shoulderR.rotation.set(-0.95 + 0.22 * g, 0, -0.18);
+        J.elbowR.rotation.set(-0.85 + 0.15 * g, 0, 0);
+        J.shoulderL.rotation.set(-0.55, 0, 0.16);
+        J.elbowL.rotation.set(-0.95, 0, 0);
+        setEyesAndBrows(J, 0.85, -0.65);
+        break;
+      }
+
+      case 'carl': {
+        // Practicing Dot's breathing & 4-second blinking nervously!
+        const breathe = Math.sin(t * 3.2);
+        J.spine.rotation.set(-0.08 * breathe, 0.06 * Math.sin(t * 2.1), 0);
+        J.head.rotation.set(0.04, 0.26 * Math.sin(t * 1.7), 0);
+        J.shoulderL.rotation.set(-0.42, 0, 0.16 + 0.08 * Math.max(0, breathe));
+        J.shoulderR.rotation.set(-0.42, 0, -0.16 - 0.08 * Math.max(0, breathe));
+        J.elbowL.rotation.set(-0.75, 0, 0);
+        J.elbowR.rotation.set(-0.75, 0, 0);
+        const blink = (t % 4.0) < 0.14 ? 0.10 : 1.18;
+        setEyesAndBrows(J, blink, 0.45);
+        break;
+      }
+
+      case 'dot': {
+        // Holding "10 Tips" clipboard in left hand & coaching with right hand
+        J.shoulderL.rotation.set(-0.85, 0.16, 0.12);
+        J.elbowL.rotation.set(-1.22, 0, 0);
+        J.shoulderR.rotation.set(-0.68, -0.12, -0.14);
+        J.elbowR.rotation.set(-0.92 + 0.20 * Math.sin(t * 3.4), 0, 0);
+        J.head.rotation.set(0.08, 0.18 * Math.sin(t * 1.3), 0);
+        setEyesAndBrows(J, 0.88, 0.15);
+        break;
+      }
+
+      case 'instructor': {
+        // Lecturing with chrome pointer stick at Patent 11,204,208 B1 chalkboard!
+        const gest = Math.sin(t * 2.8);
+        J.spine.rotation.set(0.05, 0.18 * gest, 0);
+        J.head.rotation.set(-0.06, 0.24 * Math.sin(t * 1.9), 0);
+        J.shoulderR.rotation.set(-1.55 + 0.24 * gest, -0.18, -0.12);
+        J.elbowR.rotation.set(-0.45, 0, 0);
+        setFingerCurl(J, 'R', 0.65, 0.85, 0.85, 0.75);
+        setEyesAndBrows(J, 0.98, 0.55 * Math.abs(gest));
+        break;
+      }
+
+      case 'athena': {
+        // Reviewing CAD tablet & nodding at chalkboard schematic
+        J.shoulderL.rotation.set(-0.82, 0.18, 0.12);
+        J.elbowL.rotation.set(-1.18, 0, 0);
+        J.shoulderR.rotation.set(-0.65, -0.10, -0.14);
+        J.elbowR.rotation.set(-1.05 + 0.12 * Math.sin(t * 3.0), 0, 0);
+        J.head.rotation.set(0.12 * Math.abs(Math.sin(t * 2.2)), 0.12 * Math.sin(t * 1.1), 0);
+        setEyesAndBrows(J, 1.08, 0.45);
+        break;
+      }
+
+      case 'tiny': {
+        // Gentle Giant practicing delicate two-finger pinch wave!
+        const w = Math.sin(t * 2.0);
+        J.spine.rotation.set(0.06, 0.08 * w, 0);
+        J.head.rotation.set(0.18, 0.12 * w, 0);
+        J.shoulderR.rotation.set(-0.95, -0.12, -0.12);
+        J.elbowR.rotation.set(-0.85 + 0.10 * Math.sin(t * 4.0), 0, 0);
+        setFingerCurl(J, 'R', 0.45, 0.92, 0.95, 0.72);
+        setEyesAndBrows(J, 0.95, 0.55);
+        break;
+      }
+
+      case 'lou':
+      default: {
+        // Laughing & pointing straight at overflowing SLAM Magazine trash bin!
+        const laugh = Math.sin(t * 7.2);
+        resetBodyPose(c, 0.010 * Math.abs(laugh));
+        J.spine.rotation.set(0.10 - 0.12 * Math.abs(laugh), 0.12 * Math.sin(t * 2.6), 0);
+        J.head.rotation.set(-0.12 + 0.10 * laugh, 0.22 * Math.sin(t * 3.1), 0);
+        J.shoulderR.rotation.set(-1.32 + 0.12 * laugh, -0.12, -0.10);
+        J.elbowR.rotation.set(-0.42, 0, 0);
+        setFingerCurl(J, 'R', 0.0, 0.95, 0.95, 0.85);
+        setEyesAndBrows(J, 0.45 + 0.35 * Math.abs(laugh), 0.85);
+        break;
+      }
+    }
+  }
+
+  _poseIdleBroDap(c, partner, sgn, t) {
+    const { J } = c;
+    const u = (t % 3.2) / 3.2;
+
+    // World-space midpoint between PJ Wounded Arrow and Gus!
+    const pa = c.anchor.position;
+    const pb = partner ? partner.anchor.position : { x: pa.x, z: pa.z + 0.54 * sgn };
+    const fwdX = pb.x - pa.x;
+    const fwdZ = pb.z - pa.z;
+    const fLen = Math.max(0.01, Math.hypot(fwdX, fwdZ));
+    const nx = fwdX / fLen;
+    const nz = fwdZ / fLen;
+    const rx = -nz;
+    const rz = nx;
+    const midX = (pa.x + pb.x) * 0.5;
+    const midZ = (pa.z + pb.z) * 0.5;
+    const midY = 0.35;
+    const tgt = new THREE.Vector3();
+
+    if (u < 0.25) {
+      // Step 1: Pre-reach pelvic anticipation coil (`-20mm`) -> curved J-hook reach -> high palm slap + thumb-hook cascade!
+      if (u < 0.08) {
+        const w = Math.sin((u / 0.08) * Math.PI * 0.5);
+        applyAnticipationWeightShift(c, -0.014 * w, -0.020 * w, -0.12 * w, 0.008 * w);
+      } else {
+        const d = Math.min(1, (u - 0.08) / 0.10);
+        applyAnticipationWeightShift(c, 0.006 * d, 0.022 * d, 0.08 * d, 0.005 * d);
+      }
+      const p = Math.min(1, u / 0.14);
+      const dtHit = Math.max(0, u - 0.14);
+      const recoil = dtHit > 0 ? -0.003 * Math.exp(-26 * dtHit) + 0.006 * Math.exp(-14 * dtHit) * Math.sin(36 * dtHit) : 0;
+      const sep = 0.11 * (1 - p) + 0.017 + recoil;
+      const arcDip = -0.032 * Math.sin(p * Math.PI);
+      tgt.set(midX + rx * sep, midY + 0.055 + arcDip, midZ + rz * sep);
+      const extWrist = u < 0.15 ? -0.28 * (1 - p * 0.4) : 0.10;
+      solveArmIKWorld(c, 'R', tgt, u > 0.16 ? 0.52 : 0.10, extWrist, -0.16 * p);
+      setFingerCascade(J, 'R', (u - 0.14) / 0.10, 0.08, 0.82, 0.85);
+      setEyesAndBrows(J, 1.15, 0.65);
+    } else if (u < 0.52) {
+      // Step 2: 55%/45% pronated knuckle fist-bump with +3mm compression & damped spring recoil!
+      const bu = (u - 0.25) / 0.27;
+      const reach = Math.min(1, bu / 0.38);
+      const post = Math.max(0, bu - 0.38);
+      const bumpOvershoot = post > 0 ? -0.003 * Math.exp(-24 * post) + 0.007 * Math.exp(-11 * post) * Math.sin(32 * post) : 0;
+      const off = 0.075 * (1 - reach) + 0.020 + bumpOvershoot;
+      const arcLift = 0.026 * Math.sin(reach * Math.PI);
+      applyAnticipationWeightShift(c, 0, 0.018 * reach - bumpOvershoot * 0.8, -0.05 * reach, 0.006);
+      tgt.set(midX - nx * off, midY + arcLift, midZ - nz * off);
+      solveArmIKWorld(c, 'R', tgt, 1.54, 0.08, 0.22 * reach);
+      setFingerCascade(J, 'R', bu / 0.28, 0.35, 0.96, 0.95);
+      setEyesAndBrows(J, 1.30, 0.85);
+    } else if (u < 0.74) {
+      // Step 3: Pull-back wrist ulnar whip & finger-snap!
+      const su = (u - 0.52) / 0.22;
+      const p = Math.sin(su * Math.PI);
+      applyAnticipationWeightShift(c, -0.010 * p, -0.016 * p, 0.14 * p, 0.004 * p);
+      tgt.set(midX - nx * 0.13 + rx * 0.09, midY + 0.075 * p, midZ - nz * 0.13 + rz * 0.09);
+      const ulnarWhip = su < 0.45 ? -0.30 : 0.38 * Math.exp(-6 * (su - 0.45));
+      solveArmIKWorld(c, 'R', tgt, -0.45, -0.14, ulnarWhip);
+      setFingerCurl(J, 'R', 0.06, 0.82, 0.95, 0.46, 0.90, 0.78);
+      setEyesAndBrows(J, 1.25, 0.95);
+    } else {
+      // Step 4: Celebratory firework flare!
+      const p = Math.sin(((u - 0.74) / 0.26) * Math.PI);
+      applyAnticipationWeightShift(c, 0, -0.008 * p, 0, 0.010 * p);
+      J.spine.rotation.x = -0.12 * p;
+      J.shoulderR.rotation.set(-2.05 * p, 0.12, -0.28 * p);
+      J.shoulderL.rotation.set(-2.05 * p, -0.12, 0.28 * p);
+      setFingerCascade(J, 'R', 1.0 - p, 0.08, 0.88, 0.65);
+      setFingerCascade(J, 'L', 1.0 - p, 0.08, 0.88, 0.65);
+      setEyesAndBrows(J, 1.45, 1.0);
+    }
+  }
+
+  _applySupportRoutine(sc, t) {
+    resetBodyPose(sc);
+    const { J } = sc;
+    if (sc.id === 'gus_dap') {
+      const pj = this.castById.get('pj_wawa');
+      const pjAtHome =
+        pj &&
+        !pj.activeHandshake &&
+        Math.hypot(pj.anchor.position.x - pj.def.home.x, pj.anchor.position.z - pj.def.home.z) < 0.6;
+      if (pjAtHome) {
+        this._poseIdleBroDap(sc, pj, -1, t);
+      } else {
+        J.head.rotation.set(0, 0.25 * Math.sin(t * 1.4), 0);
+        setEyesAndBrows(J, 1.0, 0.3);
+      }
+    } else if (sc.id === 'otis_wait') {
+      // Checks wrist impatience while Anty holds his breath!
+      const u = ((t + 2.1) % 5.0) / 5.0;
+      if (u >= 0.36 && u < 0.82) {
+        const chk = Math.sin(((u - 0.36) / 0.46) * Math.PI);
+        J.spine.rotation.set(0.16, -0.10 * chk, 0);
+        J.head.rotation.set(0.26 * chk, 0.22 * chk, 0);
+        J.shoulderL.rotation.set(-1.10 * chk - 0.32, 0, 0.36 * chk);
+        J.elbowL.rotation.set(-1.65 * chk, 0, 0);
+        setEyesAndBrows(J, 0.65, -0.45);
+      } else {
+        J.spine.rotation.set(0.22, 0, 0);
+        setEyesAndBrows(J, u < 0.82 ? 1.3 : 0.4, u < 0.82 ? 0.6 : 'sad');
+      }
+    } else if (sc.id === 'rookie_rfid') {
+      // Repeatedly taps swinging neck-lanyard ID badge onto the GREEN RFID pedestal!
+      const tap = Math.max(0, Math.sin(t * 2.2));
+      J.spine.rotation.set(0.14 * tap, 0, 0);
+      J.shoulderL.rotation.set(-1.05 * tap - 0.25, 0.18, 0.20);
+      J.elbowL.rotation.set(-0.72, 0, 0);
+      if (J.badgePivot) J.badgePivot.rotation.set(-0.55 * tap, 0, 0);
+      setEyesAndBrows(J, 1.1, 0.5 * tap);
+    }
+  }
+}

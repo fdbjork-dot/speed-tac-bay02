@@ -1,0 +1,572 @@
+{
+ "runtime_sec": 119.0,
+ "story_runtime_sec": 123.0,
+ "cuts": [
+  [
+   46.0,
+   46.8
+  ],
+  [
+   55.9,
+   57.5
+  ],
+  [
+   64.9,
+   66.5
+  ]
+ ],
+ "cues": [
+  {
+   "n": 1,
+   "id": "bev_01",
+   "who": "bev",
+   "name": "Bev",
+   "t": 1.0,
+   "end": 4.62,
+   "text": "Carl to Office One. Carl. Office One.",
+   "file": "assets/voice/teaser/bev_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": true,
+   "marks": [
+    0.1,
+    1.14,
+    2.06,
+    2.88,
+    3.28
+   ]
+  },
+  {
+   "n": 2,
+   "id": "dot_01",
+   "who": "dot",
+   "name": "Dot",
+   "t": 9.5,
+   "end": 12.35,
+   "text": "Ten tips. Ready? Tip one. Breathe.",
+   "file": "assets/voice/teaser/dot_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.88,
+    1.54,
+    2.52
+   ]
+  },
+  {
+   "n": 3,
+   "id": "carl_01",
+   "who": "carl",
+   "name": "Carl",
+   "t": 13.5,
+   "end": 15.27,
+   "text": "Like this?",
+   "file": "assets/voice/teaser/carl_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.12
+   ]
+  },
+  {
+   "n": 4,
+   "id": "dot_02",
+   "who": "dot",
+   "name": "Dot",
+   "t": 15.5,
+   "end": 17.21,
+   "text": "In and out, Carl. Both.",
+   "file": "assets/voice/teaser/dot_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02,
+    1.56
+   ]
+  },
+  {
+   "n": 5,
+   "id": "athena_01",
+   "who": "athena",
+   "name": "Athena",
+   "t": 18.5,
+   "end": 20.24,
+   "text": "Just don't shake his hand.",
+   "file": "assets/voice/teaser/athena_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 6,
+   "id": "dot_03",
+   "who": "dot",
+   "name": "Dot",
+   "t": 21.5,
+   "end": 22.8,
+   "text": "Tip two. Blink.",
+   "file": "assets/voice/teaser/dot_03.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.94
+   ]
+  },
+  {
+   "n": 7,
+   "id": "anty_01",
+   "who": "anty",
+   "name": "Anty",
+   "t": 24.0,
+   "end": 25.46,
+   "text": "Carl...",
+   "file": "assets/voice/teaser/anty_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02,
+    0.98
+   ]
+  },
+  {
+   "n": 8,
+   "id": "anty_02",
+   "who": "anty",
+   "name": "Anty",
+   "t": 28.0,
+   "end": 28.77,
+   "text": "...never mind.",
+   "file": "assets/voice/teaser/anty_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 9,
+   "id": "dot_04",
+   "who": "dot",
+   "name": "Dot",
+   "t": 30.0,
+   "end": 32.11,
+   "text": "Tip three is longer. We'll skip it.",
+   "file": "assets/voice/teaser/dot_04.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.62
+   ]
+  },
+  {
+   "n": 10,
+   "id": "dot_05",
+   "who": "dot",
+   "name": "Dot",
+   "t": 36.0,
+   "end": 37.05,
+   "text": "I'm right here.",
+   "file": "assets/voice/teaser/dot_05.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 11,
+   "id": "foreman_01",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 40.5,
+   "end": 42.21,
+   "text": "Forty-two, Carl.",
+   "file": "assets/voice/teaser/foreman_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02,
+    1.24
+   ]
+  },
+  {
+   "n": 12,
+   "id": "dot_06",
+   "who": "dot",
+   "name": "Dot",
+   "t": 43.0,
+   "end": 43.59,
+   "text": "Blink.",
+   "file": "assets/voice/teaser/dot_06.wav",
+   "in_ear": true,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.46
+   ]
+  },
+  {
+   "n": 13,
+   "id": "foreman_02",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 44.5,
+   "end": 45.74,
+   "text": "You know what we do here?",
+   "file": "assets/voice/teaser/foreman_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 14,
+   "id": "dot_07",
+   "who": "dot",
+   "name": "Dot",
+   "t": 47.1,
+   "end": 48.97,
+   "text": "Don't answer. It's a trap.",
+   "file": "assets/voice/teaser/dot_07.wav",
+   "in_ear": true,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.3,
+    1.1
+   ]
+  },
+  {
+   "n": 15,
+   "id": "foreman_03",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 49.8,
+   "end": 55.53,
+   "text": "We find what's in the way. And we take it out. That's the job. That's the whole job.",
+   "file": "assets/voice/teaser/foreman_03.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.76,
+    3.32,
+    4.52
+   ]
+  },
+  {
+   "n": 16,
+   "id": "dot_08",
+   "who": "dot",
+   "name": "Dot",
+   "t": 58.2,
+   "end": 59.59,
+   "text": "Nod. Smaller.",
+   "file": "assets/voice/teaser/dot_08.wav",
+   "in_ear": true,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.86
+   ]
+  },
+  {
+   "n": 17,
+   "id": "foreman_04",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 59.7,
+   "end": 64.63,
+   "text": "One rule in this building. Easy rule. If you have to force it, it ain't right.",
+   "file": "assets/voice/teaser/foreman_04.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.78,
+    2.8,
+    4.3
+   ]
+  },
+  {
+   "n": 18,
+   "id": "foreman_05",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 67.05,
+   "end": 71.11,
+   "text": "Sixty years, folks been forcing it. Called it normal.",
+   "file": "assets/voice/teaser/foreman_05.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.56,
+    3.16
+   ]
+  },
+  {
+   "n": 19,
+   "id": "foreman_06",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 72.01,
+   "end": 74.17,
+   "text": "I don't know how to say it any plainer.",
+   "file": "assets/voice/teaser/foreman_06.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02
+   ]
+  },
+  {
+   "n": 20,
+   "id": "foreman_07",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 75.4,
+   "end": 77.99,
+   "text": "And I got Shari calling me every hour.",
+   "file": "assets/voice/teaser/foreman_07.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02
+   ]
+  },
+  {
+   "n": 21,
+   "id": "dot_09",
+   "who": "dot",
+   "name": "Dot",
+   "t": 79.05,
+   "end": 80.05,
+   "text": "Say yes sir.",
+   "file": "assets/voice/teaser/dot_09.wav",
+   "in_ear": true,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.08
+   ]
+  },
+  {
+   "n": 22,
+   "id": "carl_02",
+   "who": "carl",
+   "name": "Carl",
+   "t": 80.7,
+   "end": 81.83,
+   "text": "Yes, Dot.",
+   "file": "assets/voice/teaser/carl_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02
+   ]
+  },
+  {
+   "n": 23,
+   "id": "foreman_08",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 81.95,
+   "end": 83.18,
+   "text": "...What?",
+   "file": "assets/voice/teaser/foreman_08.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 24,
+   "id": "arthur_01",
+   "who": "arthur",
+   "name": "Arthur",
+   "t": 83.3,
+   "end": 83.89,
+   "text": "Boss.",
+   "file": "assets/voice/teaser/arthur_01.wav",
+   "in_ear": false,
+   "glass": true,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 25,
+   "id": "foreman_09",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 84.2,
+   "end": 85.16,
+   "text": "Not now.",
+   "file": "assets/voice/teaser/foreman_09.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 26,
+   "id": "arthur_02",
+   "who": "arthur",
+   "name": "Arthur",
+   "t": 85.45,
+   "end": 87.32,
+   "text": "Boss. Look.",
+   "file": "assets/voice/teaser/arthur_02.wav",
+   "in_ear": false,
+   "glass": true,
+   "intercom": false,
+   "marks": [
+    0.0,
+    1.04
+   ]
+  },
+  {
+   "n": 27,
+   "id": "foreman_10",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 93.5,
+   "end": 96.39,
+   "text": "...See? Easy.",
+   "file": "assets/voice/teaser/foreman_10.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    0.78,
+    1.62,
+    2.52
+   ]
+  },
+  {
+   "n": 28,
+   "id": "foreman_11",
+   "who": "foreman",
+   "name": "Tony",
+   "t": 96.5,
+   "end": 97.55,
+   "text": "Put it there, son.",
+   "file": "assets/voice/teaser/foreman_11.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  },
+  {
+   "n": 29,
+   "id": "dot_10",
+   "who": "dot",
+   "name": "Dot",
+   "t": 98.55,
+   "end": 102.64,
+   "text": "No. Carl. No handshake. Tip four. TIP FOUR.",
+   "file": "assets/voice/teaser/dot_10.wav",
+   "in_ear": true,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.02,
+    0.62,
+    1.18,
+    1.68,
+    2.7,
+    3.38,
+    3.74
+   ]
+  },
+  {
+   "n": 31,
+   "id": "announcer_01",
+   "who": "announcer",
+   "name": "Announcer",
+   "t": 104.25,
+   "end": 112.1,
+   "text": "The Speed-Tac bolt carrier. Two patented relief cuts underneath, so a full magazine seats on a closed bolt. With one finger.",
+   "file": "assets/voice/teaser/announcer_01.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    2.08,
+    4.12,
+    6.94
+   ]
+  },
+  {
+   "n": 32,
+   "id": "announcer_02",
+   "who": "announcer",
+   "name": "Announcer",
+   "t": 114.15,
+   "end": 117.81,
+   "text": "This episode is sponsored by... nobody. Yet.",
+   "file": "assets/voice/teaser/announcer_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0,
+    2.32,
+    3.26
+   ]
+  },
+  {
+   "n": 30,
+   "id": "athena_02",
+   "who": "athena",
+   "name": "Athena",
+   "t": 119.4,
+   "end": 120.13,
+   "text": "I told him.",
+   "file": "assets/voice/teaser/athena_02.wav",
+   "in_ear": false,
+   "glass": false,
+   "intercom": false,
+   "marks": [
+    0.0
+   ]
+  }
+ ]
+}
